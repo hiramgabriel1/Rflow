@@ -17,9 +17,9 @@ const navItems: { label: string; icon: LucideIcon; href: string }[] = [
   { label: "AI Chat", icon: Bot, href: "/ai-chat" },
   { label: "Intelligence", icon: Brain, href: "#" },
   { label: "Data Hub", icon: Database, href: "/data-hub" },
-  { label: "Campaigns", icon: Megaphone, href: "#" },
-  { label: "Opportunity Finder", icon: Search, href: "#" },
-  { label: "University", icon: GraduationCap, href: "#" },
+  { label: "Campaigns", icon: Megaphone, href: "/campaigns" },
+  { label: "Opportunity Finder", icon: Search, href: "/opportunity-finder" },
+  { label: "University", icon: GraduationCap, href: "/university" },
 ];
 
 interface SidebarProps {
