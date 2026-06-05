@@ -10,14 +10,14 @@
   --color-foreground: var(--foreground);
   --color-border: #ebebeb;
   --color-input: #f5f5f5;
-  --color-primary: #d72638;
+  --color-primary: #0A99FF;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #fdf2f3;
+  --color-secondary: #e6f4ff;
   --color-muted: #f5f5f5;
   --color-muted-foreground: #8a8a8a;
   --color-card: #ffffff;
   --color-sidebar: #fafafa;
-  --color-sidebar-active: #fdf2f3;
+  --color-sidebar-active: #e6f4ff;
   --color-success: #16a34a;
   --color-success-soft: #f0fdf4;
   --color-warning: #d97706;
