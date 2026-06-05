@@ -1,8 +1,10 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Topbar from "@/components/topbar";
 import MetricCard from "@/components/metric-card";
 import InvestigationCard from "@/components/investigation-card";
 import ActionCard from "@/components/action-card";
-import OpportunityItem from "@/components/opportunity-item";
 import AIPanel from "@/components/ai-panel";
 import ActivityChart from "@/components/activity-chart";
 import {
@@ -19,7 +21,6 @@ import {
   Send,
   TrendingUp,
   BookOpen,
-  Radar,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -28,7 +29,12 @@ export default function DashboardPage() {
       <Topbar />
       <div className="flex flex-1 min-w-0">
         <div className="flex-1 min-w-0 px-8 py-8 overflow-visible">
-          <div className="mb-8 pb-8 border-b border-border">
+          <motion.div
+            className="mb-8 pb-8 border-b border-border"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+          >
             <div className="flex items-end justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -59,8 +65,19 @@ export default function DashboardPage() {
               </div>
               <ActivityChart />
             </div>
-          </div>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          </motion.div>
+          <motion.div
+            className="grid grid-cols-4 gap-4 mb-8"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.08, delayChildren: 0.2 },
+              },
+            }}
+          >
             <MetricCard
               icon={Users}
               label="Prospects Found"
@@ -97,8 +114,14 @@ export default function DashboardPage() {
               iconColorClass="text-warning"
               changeClass="bg-success-soft text-success"
             />
-          </div>
-          <div className="grid gap-6 mb-8" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          </motion.div>
+          <motion.div
+            className="grid gap-6 mb-8"
+            style={{ gridTemplateColumns: "1fr 1fr" }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+          >
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-headings font-semibold text-foreground text-[15px]">
@@ -173,64 +196,7 @@ export default function DashboardPage() {
                 />
               </div>
             </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h2 className="font-headings font-semibold text-foreground text-[15px]">
-                  Opportunity Feed
-                </h2>
-                <span className="bg-primary text-primary-foreground rounded-full text-[11px] font-medium flex items-center justify-center size-5">
-                  4
-                </span>
-              </div>
-              <a className="text-primary text-[13px] font-medium" href="#">
-                View all
-              </a>
-            </div>
-            <div className="bg-card border border-border rounded-lg px-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-              <OpportunityItem
-                icon={Users}
-                title="243 potential prospects found in SaaS vertical"
-                description="Based on your Salesforce competitor investigation."
-                time="5m ago"
-                tag="Prospects"
-                tagClass="bg-info-soft text-info"
-                iconBgClass="bg-info-soft"
-                iconColorClass="text-info"
-              />
-              <OpportunityItem
-                icon={Radar}
-                title="New competitor detected: Apollo.io expansion"
-                description="Entering your target market in EMEA region."
-                time="22m ago"
-                tag="Competitor"
-                tagClass="bg-warning-soft text-warning"
-                iconBgClass="bg-warning-soft"
-                iconColorClass="text-warning"
-              />
-              <OpportunityItem
-                icon={TrendingUp}
-                title="High-growth niche: AI SDR tools market +42%"
-                description="Strong buying signals from Series B companies."
-                time="1h ago"
-                tag="Market"
-                tagClass="bg-success-soft text-success"
-                iconBgClass="bg-success-soft"
-                iconColorClass="text-success"
-              />
-              <OpportunityItem
-                icon={Megaphone}
-                title="Optimize your Q4 outbound campaign"
-                description="AI suggests 3 changes to improve reply rate by 28%."
-                time="2h ago"
-                tag="Campaign"
-                tagClass="bg-secondary text-primary"
-                iconBgClass="bg-secondary"
-                iconColorClass="text-primary"
-              />
-            </div>
-          </div>
+          </motion.div>
         </div>
         <AIPanel />
       </div>

@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 
 interface InvestigationCardProps {
@@ -18,7 +20,13 @@ export default function InvestigationCard({
   icon: Icon,
 }: InvestigationCardProps) {
   return (
-    <div className="flex flex-col gap-4 bg-card border border-border rounded-lg p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+    <motion.div
+      className="flex flex-col gap-4 bg-card border border-border rounded-lg p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ x: 2, transition: { duration: 0.2 } }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center rounded-md bg-muted border border-border size-9">
@@ -87,6 +95,6 @@ export default function InvestigationCard({
           <span className="text-muted-foreground text-[12px]">AI insights</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

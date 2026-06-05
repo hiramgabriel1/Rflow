@@ -1,4 +1,7 @@
+"use client";
+
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   X,
   Sparkles,
@@ -33,8 +36,18 @@ export default function CampaignBuilder({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 z-50 flex items-center justify-center">
-      <div className="bg-background rounded-xl border border-border w-[640px] max-h-[80vh] flex flex-col shadow-xl">
+    <motion.div
+      className="fixed inset-0 bg-black/20 z-50 flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-background rounded-xl border border-border w-[640px] max-h-[80vh] flex flex-col shadow-xl"
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center bg-primary rounded-md size-7">
@@ -164,7 +177,7 @@ export default function CampaignBuilder({ onClose }: { onClose: () => void }) {
             Generate & Launch
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

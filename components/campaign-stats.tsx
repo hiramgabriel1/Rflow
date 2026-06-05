@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Mail, Eye, MessageSquare, MousePointerClick, Zap, TrendingUp } from "lucide-react";
 
 const stats = [
@@ -59,11 +62,28 @@ const stats = [
 
 export default function CampaignStats() {
   return (
-    <div className="grid grid-cols-6 gap-4">
+    <motion.div
+      className="grid grid-cols-6 gap-4"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: { staggerChildren: 0.06, delayChildren: 0.1 },
+        },
+      }}
+    >
       {stats.map((stat) => (
-        <div
+        <motion.div
           key={stat.label}
           className="bg-card border border-border rounded-lg p-4"
+          variants={{
+            hidden: { opacity: 0, y: 12 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{ duration: 0.3 }}
+          whileHover={{ y: -2, transition: { duration: 0.2 } }}
         >
           <div className="flex items-center justify-between mb-3">
             <div className={`flex items-center justify-center rounded-md size-8 ${stat.iconBg}`}>
@@ -80,8 +100,8 @@ export default function CampaignStats() {
           <div className="text-muted-foreground text-[11px] mt-0.5">
             {stat.label}
           </div>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

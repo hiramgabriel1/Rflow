@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Plus,
   Search,
@@ -187,14 +188,17 @@ export default function CampaignsPage() {
                 </tr>
               </thead>
               <tbody>
-                {campaigns.map((campaign) => {
+                {campaigns.map((campaign, i) => {
                   const status = statusConfig[campaign.status];
                   const StatusIcon = status.icon;
                   return (
-                    <tr
+                    <motion.tr
                       key={campaign.id}
                       className="border-b border-border last:border-b-0 hover:bg-muted/30 cursor-pointer"
                       onClick={() => setSelectedCampaign(campaign)}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.06, duration: 0.3 }}
                     >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
@@ -280,7 +284,7 @@ export default function CampaignsPage() {
                           <MoreHorizontal className="size-4" />
                         </button>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })}
               </tbody>

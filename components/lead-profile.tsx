@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { X, Send, Star, Mail, Phone, Globe, Camera, Music2, CheckCircle2, Link2 } from "lucide-react";
 
 interface LeadProfileProps {
@@ -23,7 +26,12 @@ interface LeadProfileProps {
 
 export default function LeadProfile({ lead, onClose }: LeadProfileProps) {
   return (
-    <aside className="flex flex-col bg-sidebar border-l border-border w-[320px] flex-shrink-0 overflow-y-auto">
+    <motion.aside
+      className="flex flex-col bg-sidebar border-l border-border w-[320px] flex-shrink-0 overflow-y-auto"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex items-center justify-between px-5 py-4 border-b border-border">
         <span className="text-foreground font-headings font-semibold text-[14px]">
           Lead Profile
@@ -129,6 +137,6 @@ export default function LeadProfile({ lead, onClose }: LeadProfileProps) {
           Save to Campaign
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

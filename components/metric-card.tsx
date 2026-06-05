@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 
 interface MetricCardProps {
@@ -20,7 +22,13 @@ export default function MetricCard({
   changeClass,
 }: MetricCardProps) {
   return (
-    <div className="flex flex-col gap-4 bg-card border border-border rounded-lg p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+    <motion.div
+      className="flex flex-col gap-4 bg-card border border-border rounded-lg p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+    >
       <div className="flex items-center justify-between">
         <div
           className={`flex items-center justify-center rounded-md size-9 ${iconBgClass}`}
@@ -41,6 +49,6 @@ export default function MetricCard({
           {label}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

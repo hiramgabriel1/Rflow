@@ -1,5 +1,7 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
@@ -39,19 +41,30 @@ export default function Sidebar({ activeItem = "Dashboard" }: SidebarProps) {
         </span>
       </div>
       <nav className="flex flex-col gap-0.5 px-3 pt-4 flex-1">
-        {navItems.map((item) => (
-          <Link
+        {navItems.map((item, i) => (
+          <motion.div
             key={item.label}
-            href={item.href}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium data-[active=true]:bg-sidebar-active data-[active=true]:text-primary text-muted-foreground"
-            data-active={item.label === activeItem ? true : undefined}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.05 * i, duration: 0.3 }}
           >
-            <item.icon className="size-3.5 flex-shrink-0" />
-            <span>{item.label}</span>
-          </Link>
+            <Link
+              href={item.href}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-medium data-[active=true]:bg-sidebar-active data-[active=true]:text-primary text-muted-foreground"
+              data-active={item.label === activeItem ? true : undefined}
+            >
+              <item.icon className="size-3.5 flex-shrink-0" />
+              <span>{item.label}</span>
+            </Link>
+          </motion.div>
         ))}
       </nav>
-      <div className="flex flex-col gap-0.5 px-3 pb-5">
+      <motion.div
+        className="flex flex-col gap-0.5 px-3 pb-5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+      >
         <div className="flex items-center gap-3 px-3 py-2.5 mt-2 rounded-md border border-border bg-background">
           <Image
             src="https://storage.googleapis.com/banani-avatars/avatar/male/25-35/European/0"
@@ -69,7 +82,7 @@ export default function Sidebar({ activeItem = "Dashboard" }: SidebarProps) {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     </aside>
   );
 }

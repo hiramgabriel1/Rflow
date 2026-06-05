@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight } from "lucide-react";
 
@@ -15,7 +18,10 @@ export default function LearningPath({
   icon: Icon,
 }: LearningPathProps) {
   return (
-    <div className="bg-card border border-border rounded-lg p-5 group cursor-pointer hover:border-primary/30 transition-colors">
+    <motion.div
+      className="bg-card border border-border rounded-lg p-5 group cursor-pointer hover:border-primary/30 transition-colors"
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+    >
       <div className="flex items-center gap-3 mb-3">
         <div className="flex items-center justify-center bg-secondary rounded-md size-9">
           <Icon className="size-4 text-primary" />
@@ -41,6 +47,6 @@ export default function LearningPath({
         Start path
         <ArrowRight className="size-3.5" />
       </button>
-    </div>
+    </motion.div>
   );
 }

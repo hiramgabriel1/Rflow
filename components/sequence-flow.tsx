@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Mail, Sparkles, CheckCircle2, Eye, MessageSquare } from "lucide-react";
 
 const steps = [
@@ -45,7 +48,12 @@ interface SequenceFlowProps {
 
 export default function SequenceFlow({ campaign }: SequenceFlowProps) {
   return (
-    <div className="bg-card border border-border rounded-lg p-6">
+    <motion.div
+      className="bg-card border border-border rounded-lg p-6"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="flex items-center gap-4 mb-6">
         <div className="flex items-center gap-2">
           <Mail className="size-4 text-primary" />
@@ -59,7 +67,13 @@ export default function SequenceFlow({ campaign }: SequenceFlowProps) {
       </div>
       <div className="relative">
         {steps.map((step, i) => (
-          <div key={step.id} className="flex gap-4">
+          <motion.div
+            key={step.id}
+            className="flex gap-4"
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 + i * 0.1, duration: 0.3 }}
+          >
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center bg-primary rounded-full size-8 flex-shrink-0">
                 <span className="text-primary-foreground text-[12px] font-bold">
@@ -115,9 +129,14 @@ export default function SequenceFlow({ campaign }: SequenceFlowProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-        <div className="flex gap-4">
+        <motion.div
+          className="flex gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.3 }}
+        >
           <div className="flex flex-col items-center">
             <div className="flex items-center justify-center bg-muted rounded-full size-8 flex-shrink-0">
               <CheckCircle2 className="size-4 text-muted-foreground" />
@@ -128,8 +147,8 @@ export default function SequenceFlow({ campaign }: SequenceFlowProps) {
               End of sequence
             </span>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

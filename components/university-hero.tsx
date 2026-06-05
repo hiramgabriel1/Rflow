@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Play, Sparkles, Award, TrendingUp } from "lucide-react";
 
 const stats = [
@@ -9,7 +12,12 @@ const stats = [
 
 export default function UniversityHero() {
   return (
-    <div className="bg-card border border-border rounded-xl p-6">
+    <motion.div
+      className="bg-card border border-border rounded-xl p-6"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -27,8 +35,14 @@ export default function UniversityHero() {
           </p>
         </div>
         <div className="flex items-center gap-6">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              className="text-center"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.08, duration: 0.3 }}
+            >
               <div className="flex items-center justify-center bg-muted rounded-md size-8 mx-auto mb-1.5">
                 <stat.icon className="size-4 text-primary" />
               </div>
@@ -38,12 +52,17 @@ export default function UniversityHero() {
               <div className="text-muted-foreground text-[11px]">
                 {stat.label}
               </div>
-            </div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="mt-5 pt-5 border-t border-border">
-        <div className="flex items-center gap-3">
+        <div className="mt-5 pt-5 border-t border-border">
+          <motion.div
+            className="flex items-center gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+          >
           <div className="flex-1">
             <div className="flex items-center justify-between text-[12px] mb-1.5">
               <span className="text-foreground font-medium">
@@ -62,8 +81,8 @@ export default function UniversityHero() {
             <Play className="size-3.5" />
             Continue Learning
           </button>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

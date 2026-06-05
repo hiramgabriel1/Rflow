@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Users, Building2, MapPin, Send, Search } from "lucide-react";
 
 const iconMap: Record<string, typeof Users> = {
@@ -34,7 +37,12 @@ export default function ChatMessage({
 
   if (typing) {
     return (
-      <div className="flex items-start gap-3">
+      <motion.div
+        className="flex items-start gap-3"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className="flex items-center justify-center bg-primary rounded-full size-6 flex-shrink-0">
           <span className="text-primary-foreground text-[10px] font-bold">
             R
@@ -45,12 +53,17 @@ export default function ChatMessage({
           <span className="size-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0.15s]" />
           <span className="size-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0.3s]" />
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
+    <motion.div
+      className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       {isUser ? (
         <Image
           src="https://storage.googleapis.com/banani-avatars/avatar/male/25-35/European/0"
@@ -126,6 +139,6 @@ export default function ChatMessage({
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

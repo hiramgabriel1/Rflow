@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { Play, Clock, CheckCircle2 } from "lucide-react";
 
@@ -37,10 +40,11 @@ export default function CourseCard({
   iconColor,
 }: CourseCardProps) {
   return (
-    <div
+    <motion.div
       className={`bg-card border rounded-lg overflow-hidden group cursor-pointer ${
         featured ? "border-border shadow-[0_1px_4px_rgba(0,0,0,0.04)]" : "border-border"
       }`}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
     >
       <div className={`relative h-32 ${featured ? "bg-gradient-to-br from-secondary to-muted" : "bg-muted"} flex items-center justify-center`}>
         <div className={`flex items-center justify-center rounded-lg size-12 ${iconBg}`}>
@@ -97,6 +101,6 @@ export default function CourseCard({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

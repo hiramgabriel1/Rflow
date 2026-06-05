@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { Import, Download, Plus, ChevronDown, CheckCircle2 } from "lucide-react";
 import DataHubStats from "@/components/data-hub-stats";
@@ -265,13 +266,17 @@ export default function DataHubPage() {
                 </tr>
               </thead>
               <tbody>
-                {leads.map((lead) => (
-                  <tr
+                {leads.map((lead, i) => (
+                  <motion.tr
                     key={lead.id}
                     className={`border-b border-border last:border-b-0 cursor-pointer ${
                       selectedLead?.id === lead.id ? "bg-secondary" : "hover:bg-muted/50"
                     }`}
                     onClick={() => setSelectedLead(lead)}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + i * 0.06, duration: 0.3 }}
+                    whileHover={{ backgroundColor: "var(--color-muted)", transition: { duration: 0.15 } }}
                   >
                     <td className="px-4 py-3">
                       <input
@@ -323,7 +328,7 @@ export default function DataHubPage() {
                     <td className="px-4 py-3 text-[13px] text-foreground">
                       {lead.tiktok || <span className="text-muted-foreground">—</span>}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

@@ -1,3 +1,6 @@
+"use client";
+import { motion } from "framer-motion";
+
 const data = [
   { day: "M", height: 38 },
   { day: "T", height: 55 },
@@ -16,13 +19,16 @@ export default function ActivityChart() {
       </div>
       <div className="flex items-end gap-1.5 h-14">
         {data.map((bar, i) => (
-          <div
+          <motion.div
             key={i}
             className="flex-1 rounded-sm"
             style={{
               height: `${bar.height}%`,
               background: bar.highlight ? "var(--color-primary)" : "#ebebeb",
             }}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ delay: 0.6 + i * 0.06, duration: 0.4, ease: "easeOut" }}
           />
         ))}
       </div>

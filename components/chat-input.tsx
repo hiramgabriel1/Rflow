@@ -1,8 +1,16 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Paperclip, AtSign, SlidersHorizontal, Send } from "lucide-react";
 
 export default function ChatInput() {
   return (
-    <div className="bg-background border border-border rounded-xl px-4 py-3">
+    <motion.div
+      className="bg-background border border-border rounded-xl px-4 py-3"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.3 }}
+    >
       <textarea
         className="w-full resize-none bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none min-h-[24px] max-h-[120px]"
         placeholder="Ask me to find prospects, analyze competitors, generate outreach..."
@@ -33,6 +41,6 @@ export default function ChatInput() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

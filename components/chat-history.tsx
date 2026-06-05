@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Users, Building2, Send, Search } from "lucide-react";
 
 const iconMap: Record<string, typeof Users> = {
@@ -17,7 +20,12 @@ export default function ChatHistory({
   capabilities,
 }: ChatHistoryProps) {
   return (
-    <aside className="flex flex-col bg-sidebar border-l border-border w-[280px] flex-shrink-0">
+    <motion.aside
+      className="flex flex-col bg-sidebar border-l border-border w-[280px] flex-shrink-0"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.3, duration: 0.4 }}
+    >
       <div className="px-5 py-4 border-b border-border">
         <span className="text-foreground font-headings font-semibold text-[14px]">
           Chat History
@@ -59,6 +67,6 @@ export default function ChatHistory({
           })}
         </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

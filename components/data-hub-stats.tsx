@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Users, Mail, Phone, Building2, BarChart3 } from "lucide-react";
 
 const stats = [
@@ -45,11 +48,28 @@ const stats = [
 
 export default function DataHubStats() {
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <motion.div
+      className="grid grid-cols-5 gap-4"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+        },
+      }}
+    >
       {stats.map((stat) => (
-        <div
+        <motion.div
           key={stat.label}
           className="bg-card border border-border rounded-lg p-5"
+          variants={{
+            hidden: { opacity: 0, y: 16 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{ duration: 0.3 }}
+          whileHover={{ y: -2, transition: { duration: 0.2 } }}
         >
           <div className={`flex items-center justify-center rounded-md size-9 ${stat.iconBg} mb-3`}>
             <stat.icon className={`size-4 ${stat.iconColor}`} />
@@ -63,8 +83,8 @@ export default function DataHubStats() {
           <div className="text-muted-foreground text-[11px] mt-0.5">
             {stat.sub}
           </div>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

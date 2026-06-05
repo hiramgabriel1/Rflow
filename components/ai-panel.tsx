@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import {
   Sparkles,
   MessageCircle,
@@ -28,7 +30,12 @@ const trendingTopics = [
 
 export default function AIPanel() {
   return (
-    <aside className="flex flex-col bg-sidebar border-l border-border w-[280px] flex-shrink-0">
+    <motion.aside
+      className="flex flex-col bg-sidebar border-l border-border w-[280px] flex-shrink-0"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.4, duration: 0.4 }}
+    >
       <div className="px-5 py-4 border-b border-border">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center bg-primary rounded-md size-7">
@@ -111,6 +118,6 @@ export default function AIPanel() {
           ))}
         </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

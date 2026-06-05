@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 
 interface ActionCardProps {
@@ -16,12 +18,14 @@ export default function ActionCard({
   const isPrimary = variant === "primary";
 
   return (
-    <button
+    <motion.button
       className={`flex flex-col gap-3 rounded-lg p-5 text-left border ${
         isPrimary
           ? "bg-primary border-primary shadow-[0_4px_16px_rgba(215,38,56,0.16)]"
           : "bg-card border-border shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
       }`}
+      whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.98 }}
     >
       <div
         className={`flex items-center justify-center rounded-md size-9 ${
@@ -50,6 +54,6 @@ export default function ActionCard({
           {description}
         </div>
       </div>
-    </button>
+    </motion.button>
   );
 }

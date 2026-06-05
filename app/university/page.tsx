@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   Search,
   ChevronDown,
@@ -224,7 +225,12 @@ export default function UniversityPage() {
       <div className="flex-1 min-w-0 px-8 py-6 overflow-y-auto">
         <UniversityHero />
 
-        <div className="mt-8 mb-6">
+        <motion.div
+          className="mt-8 mb-6"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headings font-semibold text-foreground text-[16px]">
               Featured Courses
@@ -239,9 +245,14 @@ export default function UniversityPage() {
               <CourseCard key={course.id} {...course} />
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-8 mb-6">
+        <motion.div
+          className="mt-8 mb-6"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headings font-semibold text-foreground text-[16px]">
               Learning Paths
@@ -252,9 +263,14 @@ export default function UniversityPage() {
               <LearningPath key={path.title} {...path} />
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-8 mb-6">
+        <motion.div
+          className="mt-8 mb-6"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headings font-semibold text-foreground text-[16px]">
               All Courses
@@ -275,9 +291,14 @@ export default function UniversityPage() {
               <CourseCard key={course.id} {...course} />
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-8 mb-6">
+        <motion.div
+          className="mt-8 mb-6"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headings font-semibold text-foreground text-[16px]">
               Certifications
@@ -320,7 +341,7 @@ export default function UniversityPage() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   );

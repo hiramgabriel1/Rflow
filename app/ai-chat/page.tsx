@@ -1,3 +1,5 @@
+"use client";
+
 import { Sparkles, Clock, Plus } from "lucide-react";
 import ChatMessage from "@/components/chat-message";
 import ChatInput from "@/components/chat-input";
