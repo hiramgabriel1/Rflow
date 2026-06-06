@@ -26,9 +26,11 @@ interface AuthStep1Props {
   data: Step1Data;
   onUpdate: (data: Partial<Step1Data>) => void;
   onNext: () => void;
+  hasCompany: boolean;
+  onToggleCompany: (value: boolean) => void;
 }
 
-export default function AuthStep1({ data, onUpdate, onNext }: AuthStep1Props) {
+export default function AuthStep1({ data, onUpdate, onNext, hasCompany, onToggleCompany }: AuthStep1Props) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -155,6 +157,30 @@ export default function AuthStep1({ data, onUpdate, onNext }: AuthStep1Props) {
                 component="p"
                 className="text-red-500 text-[11px] mt-1"
               />
+            </div>
+
+            <div className="flex items-center justify-between bg-muted rounded-lg px-4 py-3 mb-4">
+              <div>
+                <span className="text-[13px] font-medium text-foreground">
+                  ¿Tienes una empresa?
+                </span>
+                <p className="text-[11px] text-muted-foreground">
+                  {hasCompany ? "Se te pedirá información de tu organización" : "Irás directo a la personalización"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onToggleCompany(!hasCompany)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${
+                  hasCompany ? "bg-primary" : "bg-border"
+                }`}
+              >
+                <div
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                    hasCompany ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
             </div>
 
             <button

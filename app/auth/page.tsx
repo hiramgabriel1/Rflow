@@ -8,10 +8,12 @@ import AuthStep3 from "@/components/auth-step-3";
 import AuthSuccess from "@/components/auth-success";
 import AuthProgress from "@/components/auth-progress";
 
-const steps = ["Create Account", "Organization", "Personalize"];
+const stepsWithOrg = ["Create Account", "Organization", "Personalize"];
+const stepsNoOrg = ["Create Account", "Personalize"];
 
 export default function AuthPage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [hasCompany, setHasCompany] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,7 +31,16 @@ export default function AuthPage() {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
-  const nextStep = () => setCurrentStep((s) => s + 1);
+  const displaySteps = hasCompany ? stepsWithOrg : stepsNoOrg;
+  const displayStepIndex = hasCompany ? currentStep : currentStep === 0 ? 0 : currentStep === 2 ? 1 : 1;
+
+  const nextStep = () => {
+    if (currentStep === 0 && !hasCompany) {
+      setCurrentStep(2);
+    } else {
+      setCurrentStep((s) => s + 1);
+    }
+  };
 
   return (
     <div className="w-full max-w-[480px]">
@@ -45,7 +56,7 @@ export default function AuthPage() {
           </span>
         </div>
         {currentStep < 3 && (
-          <AuthProgress steps={steps} current={currentStep} />
+          <AuthProgress steps={displaySteps} current={displayStepIndex} />
         )}
       </div>
 
@@ -58,10 +69,10 @@ export default function AuthPage() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
           >
-            <AuthStep1 data={formData} onUpdate={updateData} onNext={nextStep} />
+            <AuthStep1 data={formData} onUpdate={updateData} onNext={nextStep} hasCompany={hasCompany} onToggleCompany={setHasCompany} />
           </motion.div>
         )}
-        {currentStep === 1 && (
+        {currentStep === 1 && hasCompany && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
