@@ -80,7 +80,7 @@ export default function OpportunityResult({
       <p className="text-muted-foreground text-[12px] leading-[1.5] mb-4">
         {description}
       </p>
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-muted rounded-md p-2.5 text-center">
           <div className="text-foreground font-semibold text-[14px]">
             {revenue}

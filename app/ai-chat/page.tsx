@@ -98,14 +98,14 @@ export default function AIChatPage() {
       </div>
       <div className="flex flex-1 min-w-0">
         <div className="flex-1 min-w-0 flex flex-col">
-          <div className="flex-1 overflow-y-auto px-8 py-6">
+          <div className="flex-1 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
             <div className="max-w-[720px] mx-auto flex flex-col gap-6">
               {messages.map((msg, i) => (
                 <ChatMessage key={i} {...msg} />
               ))}
             </div>
           </div>
-          <div className="px-8 pb-6">
+          <div className="px-4 pb-4 lg:px-8 lg:pb-6">
             <div className="max-w-[720px] mx-auto">
               <div className="flex flex-wrap gap-2 mb-4">
                 <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
@@ -137,7 +137,9 @@ export default function AIChatPage() {
             </div>
           </div>
         </div>
-        <ChatHistory conversations={chatConversations} capabilities={capabilities} />
+        <div className="hidden xl:block">
+          <ChatHistory conversations={chatConversations} capabilities={capabilities} />
+        </div>
       </div>
     </>
   );

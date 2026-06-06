@@ -3,21 +3,32 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
+  --blue: #377DFF;
+  --blue-light: #5e9bff;
+  --blue-dark: #2563eb;
+  --blue-soft: #eff6ff;
+  --blue-gradient: linear-gradient(135deg, #377DFF 0%, #5e9bff 100%);
+  --soft-black: #1a1a2e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-blue: var(--blue);
+  --color-blue-light: var(--blue-light);
+  --color-blue-dark: var(--blue-dark);
+  --color-blue-soft: var(--blue-soft);
+  --color-soft-black: var(--soft-black);
   --color-border: #ebebeb;
   --color-input: #f5f5f5;
-  --color-primary: #0A99FF;
+  --color-primary: #377DFF;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #e6f4ff;
+  --color-secondary: #eff6ff;
   --color-muted: #f5f5f5;
   --color-muted-foreground: #8a8a8a;
   --color-card: #ffffff;
   --color-sidebar: #fafafa;
-  --color-sidebar-active: #e6f4ff;
+  --color-sidebar-active: #fef2f2;
   --color-success: #16a34a;
   --color-success-soft: #f0fdf4;
   --color-warning: #d97706;
@@ -32,6 +43,7 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
 }
 
 body {

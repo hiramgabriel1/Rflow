@@ -63,7 +63,7 @@ const stats = [
 export default function CampaignStats() {
   return (
     <motion.div
-      className="grid grid-cols-6 gap-4"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
       initial="hidden"
       animate="visible"
       variants={{

@@ -49,7 +49,7 @@ const stats = [
 export default function DataHubStats() {
   return (
     <motion.div
-      className="grid grid-cols-5 gap-4"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
       initial="hidden"
       animate="visible"
       variants={{
