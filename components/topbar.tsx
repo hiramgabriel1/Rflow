@@ -3,8 +3,8 @@ import { Search, Bell, ChevronDown } from "lucide-react";
 
 export default function Topbar() {
   return (
-    <div className="flex items-center justify-between px-8 py-4 border-b border-border bg-background min-h-[60px]">
-      <div className="flex items-center gap-2.5 bg-input rounded-md px-4 py-2.5 border border-border w-[300px]">
+    <div className="flex items-center justify-between px-4 py-3 lg:px-8 lg:py-4 border-b border-border bg-background min-h-[56px] lg:min-h-[60px]">
+      <div className="hidden sm:flex items-center gap-2.5 bg-input rounded-md px-4 py-2.5 border border-border w-[300px]">
         <Search className="size-3.5 text-muted-foreground flex-shrink-0" />
         <span className="text-muted-foreground text-[13px]">
           Search anything...
@@ -15,8 +15,8 @@ export default function Topbar() {
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 border border-border rounded-md px-3 py-2">
+      <div className="flex items-center gap-3 lg:gap-4">
+        <div className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 py-2">
           <div className="size-1.5 rounded-full bg-primary" />
           <span className="text-foreground text-[12px] font-medium">
             2,450 Credits
@@ -34,7 +34,7 @@ export default function Topbar() {
             width={32}
             height={32}
           />
-          <div className="flex flex-col">
+          <div className="hidden sm:flex flex-col">
             <span className="text-foreground text-[13px] font-medium">
               Alex Morgan
             </span>
@@ -42,7 +42,7 @@ export default function Topbar() {
               Pro Plan
             </span>
           </div>
-          <ChevronDown className="size-3 text-muted-foreground" />
+          <ChevronDown className="hidden sm:block size-3 text-muted-foreground" />
         </div>
       </div>
     </div>

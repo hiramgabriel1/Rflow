@@ -194,7 +194,7 @@ export default function DataHubPage() {
         </div>
       </div>
       <div className="flex flex-1 min-w-0">
-        <div className="flex-1 min-w-0 px-8 py-6 overflow-y-auto">
+        <div className="flex-1 min-w-0 px-4 py-4 lg:px-8 lg:py-6 overflow-y-auto">
           <DataHubStats />
           <div className="flex items-center gap-2 mt-6 mb-4 flex-wrap">
             <div className="flex items-center gap-2 bg-input rounded-md px-3 py-2 border border-border w-[200px]">
@@ -233,8 +233,8 @@ export default function DataHubPage() {
               Columns
             </button>
           </div>
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <table className="w-full">
+          <div className="bg-card border border-border rounded-lg overflow-x-auto">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b border-border">
                   <th className="w-10 px-4 py-3">
@@ -363,7 +363,9 @@ export default function DataHubPage() {
           </div>
         </div>
         {selectedLead && (
-          <LeadProfile lead={selectedLead} onClose={() => setSelectedLead(null)} />
+          <div className="hidden lg:block">
+            <LeadProfile lead={selectedLead} onClose={() => setSelectedLead(null)} />
+          </div>
         )}
       </div>
     </>

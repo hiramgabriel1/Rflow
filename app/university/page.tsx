@@ -222,7 +222,7 @@ export default function UniversityPage() {
           </div>
         </div>
       </div>
-      <div className="flex-1 min-w-0 px-8 py-6 overflow-y-auto">
+      <div className="flex-1 min-w-0 px-4 py-4 lg:px-8 lg:py-6 overflow-y-auto">
         <UniversityHero />
 
         <motion.div
@@ -240,7 +240,7 @@ export default function UniversityPage() {
               <ArrowRight className="size-3.5" />
             </button>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredCourses.map((course) => (
               <CourseCard key={course.id} {...course} />
             ))}
@@ -258,7 +258,7 @@ export default function UniversityPage() {
               Learning Paths
             </h2>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {learningPaths.map((path) => (
               <LearningPath key={path.title} {...path} />
             ))}
@@ -286,7 +286,7 @@ export default function UniversityPage() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {allCourses.map((course) => (
               <CourseCard key={course.id} {...course} />
             ))}
@@ -304,7 +304,7 @@ export default function UniversityPage() {
               Certifications
             </h2>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {certifications.map((cert) => (
               <div
                 key={cert.id}

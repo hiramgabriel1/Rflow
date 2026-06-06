@@ -29,7 +29,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeItem = "Dashboard" }: SidebarProps) {
   return (
-    <aside className="flex flex-col bg-sidebar border-r border-border w-[220px] h-screen sticky top-0 flex-shrink-0">
+    <aside className="hidden lg:flex flex-col bg-sidebar border-r border-border w-[220px] h-screen sticky top-0 flex-shrink-0">
       <div className="flex items-center gap-2.5 px-6 py-5 border-b border-border">
         <div className="flex items-center justify-center bg-primary rounded-md w-7 h-7">
           <span className="text-primary-foreground font-headings font-bold text-[13px]">

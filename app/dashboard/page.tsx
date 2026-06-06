@@ -28,7 +28,7 @@ export default function DashboardPage() {
     <>
       <Topbar />
       <div className="flex flex-1 min-w-0">
-        <div className="flex-1 min-w-0 px-8 py-8 overflow-visible">
+        <div className="flex-1 min-w-0 px-4 py-6 lg:px-8 lg:py-8 overflow-visible">
           <motion.div
             className="mb-8 pb-8 border-b border-border"
             initial={{ opacity: 0, y: 12 }}
@@ -67,7 +67,7 @@ export default function DashboardPage() {
             </div>
           </motion.div>
           <motion.div
-            className="grid grid-cols-4 gap-4 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
             initial="hidden"
             animate="visible"
             variants={{
@@ -116,8 +116,7 @@ export default function DashboardPage() {
             />
           </motion.div>
           <motion.div
-            className="grid gap-6 mb-8"
-            style={{ gridTemplateColumns: "1fr 1fr" }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}
@@ -165,7 +164,7 @@ export default function DashboardPage() {
                 </h2>
               </div>
               <div
-                className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-1 md:grid-cols-2 gap-3"
                 style={{ gridTemplateRows: "auto auto auto" }}
               >
                 <ActionCard
@@ -198,7 +197,9 @@ export default function DashboardPage() {
             </div>
           </motion.div>
         </div>
-        <AIPanel />
+        <div className="hidden xl:block">
+          <AIPanel />
+        </div>
       </div>
     </>
   );
