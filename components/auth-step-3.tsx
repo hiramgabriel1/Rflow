@@ -1,9 +1,8 @@
 "use client";
 
-import { Formik, Form } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { Check } from "lucide-react";
-import { useState } from "react";
 
 const sources = [
   "Google Search",
@@ -50,27 +49,51 @@ interface AuthStep3Props {
   onNext: () => void;
 }
 
-export default function AuthStep3({ data, onUpdate, onNext }: AuthStep3Props) {
-  const [selectedSource, setSelectedSource] = useState(data.source || "");
-  const [selectedGoals, setSelectedGoals] = useState<string[]>(data.goals || []);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    data.platforms || []
+function ToggleGroup({
+  options,
+  value,
+  onChange,
+  multiple,
+  error,
+}: {
+  options: string[];
+  value: string | string[];
+  onChange: (val: string) => void;
+  multiple?: boolean;
+  error?: string;
+}) {
+  const isSelected = (option: string) => {
+    if (multiple) {
+      return (value as string[]).includes(option);
+    }
+    return value === option;
+  };
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] border transition-all ${
+              isSelected(option)
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background text-foreground border-border hover:border-primary/50"
+            }`}
+          >
+            {isSelected(option) && <Check className="size-3.5" />}
+            {option}
+          </button>
+        ))}
+      </div>
+      {error && <p className="text-red-500 text-[11px] mt-1">{error}</p>}
+    </div>
   );
+}
 
-  const toggleGoal = (goal: string) => {
-    setSelectedGoals((prev) =>
-      prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal]
-    );
-  };
-
-  const togglePlatform = (platform: string) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(platform)
-        ? prev.filter((p) => p !== platform)
-        : [...prev, platform]
-    );
-  };
-
+export default function AuthStep3({ data, onUpdate, onNext }: AuthStep3Props) {
   return (
     <div className="bg-card border border-border rounded-xl p-8 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
       <h2 className="font-headings font-semibold text-foreground text-[22px] -tracking-[0.3px] mb-1">
@@ -82,104 +105,64 @@ export default function AuthStep3({ data, onUpdate, onNext }: AuthStep3Props) {
 
       <Formik
         initialValues={{
-          source: data.source,
-          goals: data.goals,
-          platforms: data.platforms,
+          source: data.source || "",
+          goals: data.goals || [],
+          platforms: data.platforms || [],
         }}
         validationSchema={schema}
-        onSubmit={() => {
-          onUpdate({
-            source: selectedSource,
-            goals: selectedGoals,
-            platforms: selectedPlatforms,
-          });
+        onSubmit={(values) => {
+          onUpdate(values);
           onNext();
         }}
       >
-        {({ isSubmitting, errors, touched }) => (
+        {({ isSubmitting, values, setFieldValue, errors, touched }) => (
           <Form className="flex flex-col gap-6">
             <div>
               <label className="text-foreground text-[14px] font-medium mb-3 block">
                 Where did you hear about RubyFlow?
               </label>
-              <div className="flex flex-wrap gap-2">
-                {sources.map((source) => (
-                  <button
-                    key={source}
-                    type="button"
-                    onClick={() => setSelectedSource(source)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] border transition-all ${
-                      selectedSource === source
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {selectedSource === source && <Check className="size-3.5" />}
-                    {source}
-                  </button>
-                ))}
-              </div>
-              {touched.source && errors.source && (
-                <p className="text-red-500 text-[11px] mt-1">{errors.source}</p>
-              )}
+              <ToggleGroup
+                options={sources}
+                value={values.source}
+                onChange={(val) => setFieldValue("source", val)}
+                error={touched.source ? errors.source : undefined}
+              />
             </div>
 
             <div>
               <label className="text-foreground text-[14px] font-medium mb-3 block">
                 What do you want to accomplish?
               </label>
-              <div className="flex flex-wrap gap-2">
-                {goals.map((goal) => (
-                  <button
-                    key={goal}
-                    type="button"
-                    onClick={() => toggleGoal(goal)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] border transition-all ${
-                      selectedGoals.includes(goal)
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {selectedGoals.includes(goal) && (
-                      <Check className="size-3.5" />
-                    )}
-                    {goal}
-                  </button>
-                ))}
-              </div>
-              {touched.goals && errors.goals && (
-                <p className="text-red-500 text-[11px] mt-1">{errors.goals}</p>
-              )}
+              <ToggleGroup
+                options={goals}
+                value={values.goals}
+                onChange={(val) => {
+                  const updated = values.goals.includes(val)
+                    ? values.goals.filter((g: string) => g !== val)
+                    : [...values.goals, val];
+                  setFieldValue("goals", updated);
+                }}
+                multiple
+                error={touched.goals ? (errors.goals as string) : undefined}
+              />
             </div>
 
             <div>
               <label className="text-foreground text-[14px] font-medium mb-3 block">
                 What platforms matter most to you?
               </label>
-              <div className="flex flex-wrap gap-2">
-                {platforms.map((platform) => (
-                  <button
-                    key={platform}
-                    type="button"
-                    onClick={() => togglePlatform(platform)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] border transition-all ${
-                      selectedPlatforms.includes(platform)
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {selectedPlatforms.includes(platform) && (
-                      <Check className="size-3.5" />
-                    )}
-                    {platform}
-                  </button>
-                ))}
-              </div>
-              {touched.platforms && errors.platforms && (
-                <p className="text-red-500 text-[11px] mt-1">
-                  {errors.platforms}
-                </p>
-              )}
+              <ToggleGroup
+                options={platforms}
+                value={values.platforms}
+                onChange={(val) => {
+                  const updated = values.platforms.includes(val)
+                    ? values.platforms.filter((p: string) => p !== val)
+                    : [...values.platforms, val];
+                  setFieldValue("platforms", updated);
+                }}
+                multiple
+                error={touched.platforms ? (errors.platforms as string) : undefined}
+              />
             </div>
 
             <button
