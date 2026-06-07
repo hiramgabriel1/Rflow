@@ -1,71 +1,165 @@
 "use client";
 
-import { Sparkles, Clock, Plus } from "lucide-react";
-import ChatMessage from "@/components/chat-message";
-import ChatInput from "@/components/chat-input";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Sparkles, Clock, Plus, Trash2 } from "lucide-react";
+import { api, type ChatMessage, type Conversation, type ConversationSummary } from "@/lib/api";
+import ChatMessageComponent from "@/components/chat-message";
 import ChatHistory from "@/components/chat-history";
 
-const messages = [
-  {
-    role: "user" as const,
-    content:
-      "Analyze Salesforce competitors in the EMEA market and find me 50 qualified prospects.",
-    time: "10:42 AM",
-  },
-  {
-    role: "ai" as const,
-    name: "RubyFlow AI",
-    time: "10:42 AM",
-    content:
-      "Sure! I'm analyzing Salesforce's competitive landscape across EMEA right now. Here's what I've found so far:",
-    stats: [
-      { value: "14", label: "Competitors identified", icon: "building" },
-      { value: "347", label: "Qualified prospects", icon: "users" },
-      { value: "12", label: "Markets covered", icon: "map" },
-    ],
-    followUp:
-      "I've identified 14 direct competitors and surfaced 347 qualified prospects across 12 EMEA markets. The strongest opportunities are in Germany, Netherlands and Sweden — where Salesforce's market share is under pressure from HubSpot and Pipedrive.\n\nShould I generate a targeted outreach campaign for the top 50 prospects, or would you like to refine the criteria first?",
-  },
-  {
-    role: "user" as const,
-    content:
-      "Yes, generate outreach for the top 50. Focus on VP Sales and CRO titles.",
-    time: "10:45 AM",
-  },
-  {
-    role: "ai" as const,
-    name: "RubyFlow AI",
-    time: "10:45 AM",
-    content:
-      "Perfect. Generating personalized outreach sequences for 50 prospects targeting VP Sales and CRO contacts...",
-    followUp:
-      "Your campaign is ready. I've created 3-step sequences with personalized first lines for each prospect. Open rate projection: 42%. Reply rate projection: 18%. Would you like to launch now or review the messages first?",
-    action: { label: "View Campaign", href: "#" },
-  },
-  {
-    role: "ai" as const,
-    name: "RubyFlow AI",
-    typing: true,
-  },
-];
+function ChatInput({
+  onSend,
+  isLoading,
+}: {
+  onSend: (message: string) => void;
+  isLoading: boolean;
+}) {
+  const [value, setValue] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-const chatConversations = [
-  { title: "Salesforce EMEA analysis", time: "Today, 10:42" },
-  { title: "HubSpot competitor deep-dive", time: "Today, 9:15" },
-  { title: "Find CFOs in fintech sector", time: "Yesterday" },
-  { title: "Series B SaaS prospect list", time: "Yesterday" },
-  { title: "RevOps market research", time: "Mon, Jul 7" },
-  { title: "Apollo.io competitive intel", time: "Mon, Jul 7" },
-];
+  const handleSubmit = () => {
+    const trimmed = value.trim();
+    if (!trimmed || isLoading) return;
+    onSend(trimmed);
+    setValue("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+  };
 
-const capabilities = [
-  { label: "Prospect discovery", icon: "users" },
-  { label: "Competitor intelligence", icon: "building" },
-  { label: "Outreach generation", icon: "send" },
-  { label: "Market research", icon: "search" },
-];
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  const handleInput = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 120) + "px";
+    }
+  };
+
+  return (
+    <div className="bg-background border border-border rounded-xl px-4 py-3">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onInput={handleInput}
+        className="w-full resize-none bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none min-h-[24px] max-h-[120px]"
+        placeholder="Ask me to find prospects, analyze competitors, generate outreach..."
+        rows={1}
+      />
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+        <div className="flex items-center gap-1" />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading || !value.trim()}
+            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-md px-4 py-1.5 text-[12px] font-medium disabled:opacity-50"
+          >
+            {isLoading ? "Thinking..." : "Send"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AIChatPage() {
+  const router = useRouter();
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const loadConversations = async () => {
+    try {
+      const list = await api.listConversations();
+      setConversations(list);
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message.includes("Token")) {
+        router.push("/auth");
+      }
+    }
+  };
+
+  const selectConversation = useCallback(async (id: string) => {
+    setIsInitialLoading(true);
+    try {
+      const conv = await api.getConversation(id);
+      setCurrentConversation(conv);
+      setMessages(conv.messages);
+    } catch {
+      // ignore
+    } finally {
+      setIsInitialLoading(false);
+    }
+  }, []);
+
+  const handleNewChat = () => {
+    setCurrentConversation(null);
+    setMessages([]);
+  };
+
+  const handleDeleteConversation = useCallback(async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.deleteConversation(id);
+      if (currentConversation?.id === id) {
+        setCurrentConversation(null);
+        setMessages([]);
+      }
+      setConversations((prev) => prev.filter((c) => c.id !== id));
+    } catch {
+      // ignore
+    }
+  }, [currentConversation]);
+
+  const handleSend = useCallback(async (content: string) => {
+    const userMsg: ChatMessage = { role: "user", content };
+    setMessages((prev) => [...prev, userMsg]);
+    setIsLoading(true);
+
+    try {
+      if (currentConversation) {
+        const updated = await api.sendMessage(currentConversation.id, content);
+        setCurrentConversation(updated);
+        setMessages(updated.messages);
+      } else {
+        const newConv = await api.createConversation(undefined, content);
+        setCurrentConversation(newConv);
+        setMessages(newConv.messages);
+        await loadConversations();
+      }
+    } catch {
+      // ignore
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentConversation]);
+
+  const capabilities = [
+    { label: "Prospect discovery", icon: "users" },
+    { label: "Competitor intelligence", icon: "building" },
+    { label: "Outreach generation", icon: "send" },
+    { label: "Market research", icon: "search" },
+  ];
+
   return (
     <>
       <div className="flex items-center justify-between px-8 py-4 border-b border-border bg-background">
@@ -75,7 +169,7 @@ export default function AIChatPage() {
           </div>
           <div>
             <span className="text-foreground font-headings font-semibold text-[14px]">
-              AI Chat
+              {currentConversation?.title || "AI Chat"}
             </span>
             <div className="flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-success" />
@@ -86,11 +180,10 @@ export default function AIChatPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 bg-background border border-border rounded-md px-3 py-1.5 text-[12px] text-muted-foreground">
-            <Clock className="size-3" />
-            History
-          </button>
-          <button className="flex items-center gap-1.5 bg-background border border-border rounded-md px-3 py-1.5 text-[12px] text-muted-foreground">
+          <button
+            onClick={handleNewChat}
+            className="flex items-center gap-1.5 bg-background border border-border rounded-md px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+          >
             <Plus className="size-3" />
             New Chat
           </button>
@@ -100,45 +193,50 @@ export default function AIChatPage() {
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="flex-1 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
             <div className="max-w-[720px] mx-auto flex flex-col gap-6">
-              {messages.map((msg, i) => (
-                <ChatMessage key={i} {...msg} />
-              ))}
+              {isInitialLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <span className="text-muted-foreground text-[13px]">Loading conversation...</span>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="flex items-center justify-center bg-primary/10 rounded-2xl size-14 mb-4">
+                    <Sparkles className="size-6 text-primary" />
+                  </div>
+                  <h2 className="text-[18px] font-semibold text-foreground mb-2">
+                    How can I help you today?
+                  </h2>
+                  <p className="text-[14px] text-muted-foreground max-w-sm">
+                    Ask me to find prospects, analyze competitors, generate outreach campaigns, or research markets.
+                  </p>
+                </div>
+              ) : (
+                messages.map((msg, i) => (
+                  <ChatMessageComponent
+                    key={i}
+                    role={msg.role === "user" ? "user" : "ai"}
+                    content={msg.content}
+                    name={msg.role === "assistant" ? "RubyFlow AI" : undefined}
+                  />
+                ))
+              )}
+              {isLoading && <ChatMessageComponent role="ai" name="RubyFlow AI" typing />}
+              <div ref={messagesEndRef} />
             </div>
           </div>
           <div className="px-4 pb-4 lg:px-8 lg:pb-6">
             <div className="max-w-[720px] mx-auto">
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary"></span>
-                  Analyze @competitor
-                </button>
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary">⌘</span>
-                  Find similar businesses
-                </button>
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary">⌘</span>
-                  Find decision makers
-                </button>
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary">⌘</span>
-                  Generate outreach campaign
-                </button>
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary"></span>
-                  Discover prospects from TiKTok
-                </button>
-                <button className="flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-                  <span className="text-primary">⌘</span>
-                  Research my competitors
-                </button>
-              </div>
-              <ChatInput />
+              <ChatInput onSend={handleSend} isLoading={isLoading} />
             </div>
           </div>
         </div>
         <div className="hidden xl:block">
-          <ChatHistory conversations={chatConversations} capabilities={capabilities} />
+          <ChatHistory
+            conversations={conversations.map((c) => ({ id: c.id, title: c.title, time: new Date(c.createdAt).toLocaleDateString() }))}
+            capabilities={capabilities}
+            onSelectConversation={selectConversation}
+            onDeleteConversation={handleDeleteConversation}
+            activeId={currentConversation?.id}
+          />
         </div>
       </div>
     </>

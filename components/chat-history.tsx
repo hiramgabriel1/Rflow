@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Building2, Send, Search } from "lucide-react";
+import { Users, Building2, Send, Search, Trash2 } from "lucide-react";
 
 const iconMap: Record<string, typeof Users> = {
   users: Users,
@@ -11,13 +11,19 @@ const iconMap: Record<string, typeof Users> = {
 };
 
 interface ChatHistoryProps {
-  conversations: { title: string; time: string }[];
+  conversations: { id: string; title: string; time: string }[];
   capabilities: { label: string; icon: string }[];
+  onSelectConversation?: (id: string) => void;
+  onDeleteConversation?: (id: string, e: React.MouseEvent) => void;
+  activeId?: string;
 }
 
 export default function ChatHistory({
   conversations,
   capabilities,
+  onSelectConversation,
+  onDeleteConversation,
+  activeId,
 }: ChatHistoryProps) {
   return (
     <motion.aside
@@ -33,19 +39,38 @@ export default function ChatHistory({
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-4">
         <div className="flex flex-col">
-          {conversations.map((conv) => (
-            <button
-              key={conv.title}
-              className="flex flex-col items-start gap-0.5 py-2.5 border-b border-border last:border-b-0 text-left"
-            >
-              <span className="text-foreground text-[12px] font-medium leading-[1.4]">
-                {conv.title}
-              </span>
-              <span className="text-muted-foreground text-[11px]">
-                {conv.time}
-              </span>
-            </button>
-          ))}
+          {conversations.length === 0 ? (
+            <p className="text-muted-foreground text-[12px]">No conversations yet</p>
+          ) : (
+            conversations.map((conv) => (
+              <div
+                key={conv.id}
+                className={`flex items-center gap-2 py-2.5 border-b border-border last:border-b-0 group ${
+                  activeId ? "cursor-pointer" : ""
+                }`}
+                onClick={() => onSelectConversation?.(conv.id)}
+              >
+                <div className="flex flex-col items-start gap-0.5 flex-1 min-w-0">
+                  <span className={`text-[12px] font-medium leading-[1.4] truncate w-full ${
+                    activeId ? "text-foreground" : "text-muted-foreground"
+                  }`}>
+                    {conv.title}
+                  </span>
+                  <span className="text-muted-foreground text-[11px]">
+                    {conv.time}
+                  </span>
+                </div>
+                {onDeleteConversation && (
+                  <button
+                    onClick={(e) => onDeleteConversation(conv.id, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-red-500 transition-all"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
       <div className="px-5 py-4 border-t border-border">

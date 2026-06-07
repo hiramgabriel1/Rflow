@@ -65,6 +65,27 @@ export interface LoginResponse {
   access_token: string;
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const api = {
   register: (input: RegisterInput) =>
     request<RegisterResponse>("/users/register", {
@@ -81,6 +102,29 @@ export const api = {
   logout: () =>
     request<{ message: string }>("/users/logout", {
       method: "POST",
+    }),
+
+  createConversation: (title: string | undefined, message: string) =>
+    request<Conversation>("/conversations", {
+      method: "POST",
+      body: JSON.stringify({ title, message }),
+    }),
+
+  listConversations: () =>
+    request<ConversationSummary[]>("/conversations"),
+
+  getConversation: (id: string) =>
+    request<Conversation>(`/conversations/${id}`),
+
+  sendMessage: (conversationId: string, message: string) =>
+    request<Conversation>(`/conversations/${conversationId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({ message }),
+    }),
+
+  deleteConversation: (id: string) =>
+    request<{ message: string }>(`/conversations/${id}`, {
+      method: "DELETE",
     }),
 };
 
