@@ -2,16 +2,28 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
 import AuthStep1 from "@/components/auth-step-1";
 import AuthStep2 from "@/components/auth-step-2";
 import AuthStep3 from "@/components/auth-step-3";
 import AuthSuccess from "@/components/auth-success";
+import AuthLogin from "@/components/auth-login";
 import AuthProgress from "@/components/auth-progress";
 
 const stepsWithOrg = ["Create Account", "Organization", "Personalize"];
 const stepsNoOrg = ["Create Account", "Personalize"];
 
+function parseTeamSize(val: string): number | undefined {
+  if (val === "1000+") return 1000;
+  const match = val.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : undefined;
+}
+
 export default function AuthPage() {
+  const router = useRouter();
+  const { register, isAuthenticated, error, clearError, isLoading } = useAuth();
+  const [mode, setMode] = useState<"login" | "register">("register");
   const [currentStep, setCurrentStep] = useState(0);
   const [hasCompany, setHasCompany] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,15 +44,44 @@ export default function AuthPage() {
   };
 
   const displaySteps = hasCompany ? stepsWithOrg : stepsNoOrg;
-  const displayStepIndex = hasCompany ? currentStep : currentStep === 0 ? 0 : currentStep === 2 ? 1 : 1;
+  const displayStepIndex = hasCompany ? currentStep : currentStep === 0 ? 0 : 1;
 
-  const nextStep = () => {
-    if (currentStep === 0 && !hasCompany) {
-      setCurrentStep(2);
-    } else {
-      setCurrentStep((s) => s + 1);
+  const handleRegister = async () => {
+    try {
+      const orgData = hasCompany
+        ? {
+            organizationName: formData.organization,
+            website: formData.website || undefined,
+            industry: formData.industry || undefined,
+            teamSize: formData.teamSize ? parseTeamSize(formData.teamSize) : undefined,
+          }
+        : undefined;
+      await register(formData.name, formData.email, formData.password, hasCompany, orgData);
+      setCurrentStep(3);
+    } catch {
+      // error is set in auth context
     }
   };
+
+  const nextStep = () => {
+    clearError();
+    if (currentStep === 0) {
+      if (!hasCompany) {
+        handleRegister();
+      } else {
+        setCurrentStep(1);
+      }
+    } else if (currentStep === 1 && hasCompany) {
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      handleRegister();
+    }
+  };
+
+  if (isAuthenticated) {
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <div className="w-full max-w-[480px]">
@@ -55,13 +96,41 @@ export default function AuthPage() {
             RubyFlow
           </span>
         </div>
-        {currentStep < 3 && (
+        {mode === "register" && currentStep < 3 && (
           <AuthProgress steps={displaySteps} current={displayStepIndex} />
         )}
       </div>
 
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-center"
+        >
+          <p className="text-red-600 text-[13px] mb-2">{error}</p>
+          <button
+            onClick={clearError}
+            className="text-[12px] text-red-700 underline"
+          >
+            Dismiss
+          </button>
+        </motion.div>
+      )}
+
       <AnimatePresence mode="wait">
-        {currentStep === 0 && (
+        {mode === "login" && (
+          <motion.div
+            key="login"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+          >
+            <AuthLogin onSwitchToRegister={() => setMode("register")} />
+          </motion.div>
+        )}
+
+        {mode === "register" && currentStep === 0 && (
           <motion.div
             key="step1"
             initial={{ opacity: 0, x: 20 }}
@@ -69,10 +138,19 @@ export default function AuthPage() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
           >
-            <AuthStep1 data={formData} onUpdate={updateData} onNext={nextStep} hasCompany={hasCompany} onToggleCompany={setHasCompany} />
+            <AuthStep1
+              data={formData}
+              onUpdate={updateData}
+              onNext={nextStep}
+              hasCompany={hasCompany}
+              onToggleCompany={setHasCompany}
+              isLoading={isLoading}
+              onSwitchToLogin={() => setMode("login")}
+            />
           </motion.div>
         )}
-        {currentStep === 1 && hasCompany && (
+
+        {mode === "register" && currentStep === 1 && hasCompany && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
@@ -83,7 +161,8 @@ export default function AuthPage() {
             <AuthStep2 data={formData} onUpdate={updateData} onNext={nextStep} />
           </motion.div>
         )}
-        {currentStep === 2 && (
+
+        {mode === "register" && currentStep === 2 && (
           <motion.div
             key="step3"
             initial={{ opacity: 0, x: 20 }}
@@ -91,10 +170,16 @@ export default function AuthPage() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
           >
-            <AuthStep3 data={formData} onUpdate={updateData} onNext={nextStep} />
+            <AuthStep3
+              data={formData}
+              onUpdate={updateData}
+              onNext={nextStep}
+              isLoading={isLoading}
+            />
           </motion.div>
         )}
-        {currentStep === 3 && (
+
+        {mode === "register" && currentStep === 3 && (
           <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -106,7 +191,7 @@ export default function AuthPage() {
         )}
       </AnimatePresence>
 
-      {currentStep < 3 && (
+      {mode === "register" && currentStep < 3 && (
         <p className="text-center text-muted-foreground text-[12px] mt-6">
           By continuing, you agree to our{" "}
           <button className="text-foreground underline">Terms</button> and{" "}

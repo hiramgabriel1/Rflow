@@ -47,6 +47,7 @@ interface AuthStep3Props {
   data: Step3Data;
   onUpdate: (data: Partial<Step3Data>) => void;
   onNext: () => void;
+  isLoading: boolean;
 }
 
 function ToggleGroup({
@@ -93,7 +94,7 @@ function ToggleGroup({
   );
 }
 
-export default function AuthStep3({ data, onUpdate, onNext }: AuthStep3Props) {
+export default function AuthStep3({ data, onUpdate, onNext, isLoading }: AuthStep3Props) {
   return (
     <div className="bg-card border border-border rounded-xl p-8 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
       <h2 className="font-headings font-semibold text-foreground text-[22px] -tracking-[0.3px] mb-1">
@@ -167,10 +168,10 @@ export default function AuthStep3({ data, onUpdate, onNext }: AuthStep3Props) {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoading}
               className="w-full bg-primary text-primary-foreground rounded-lg py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50 mt-1"
             >
-              Finish Setup
+              {isLoading ? "Creating account..." : "Finish Setup"}
             </button>
           </Form>
         )}

@@ -2,53 +2,32 @@
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth";
 
 const schema = Yup.object({
-  name: Yup.string().required("Full name is required").min(2, "Name is too short"),
   email: Yup.string()
     .email("Invalid email address")
-    .required("Work email is required"),
-  password: Yup.string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
 });
 
-interface Step1Data {
-  name: string;
-  email: string;
-  password: string;
+interface AuthLoginProps {
+  onSwitchToRegister: () => void;
 }
 
-interface AuthStep1Props {
-  data: Step1Data;
-  onUpdate: (data: Partial<Step1Data>) => void;
-  onNext: () => void;
-  hasCompany: boolean;
-  onToggleCompany: (value: boolean) => void;
-  isLoading: boolean;
-  onSwitchToLogin: () => void;
-}
-
-export default function AuthStep1({
-  data,
-  onUpdate,
-  onNext,
-  hasCompany,
-  onToggleCompany,
-  isLoading,
-  onSwitchToLogin,
-}: AuthStep1Props) {
+export default function AuthLogin({ onSwitchToRegister }: AuthLoginProps) {
+  const { login, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="bg-card border border-border rounded-xl p-8 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
       <h2 className="font-headings font-semibold text-foreground text-[22px] -tracking-[0.3px] mb-1">
-        Create your account
+        Welcome back
       </h2>
       <p className="text-muted-foreground text-[14px] mb-6">
-        Start your RubyFlow journey in seconds.
+        Sign in to your RubyFlow account.
       </p>
 
       <div className="flex flex-col gap-3 mb-5">
@@ -94,38 +73,17 @@ export default function AuthStep1({
       </div>
 
       <Formik
-        initialValues={{ name: data.name, email: data.email, password: data.password }}
+        initialValues={{ email: "", password: "" }}
         validationSchema={schema}
-        onSubmit={(values) => {
-          onUpdate(values);
-          onNext();
+        onSubmit={async (values) => {
+          await login(values.email, values.password);
         }}
       >
-        {({ isSubmitting, isValid, dirty }) => (
+        {({ isSubmitting }) => (
           <Form className="flex flex-col gap-4">
             <div>
               <label className="text-foreground text-[13px] font-medium mb-1.5 block">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Field
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  className="w-full bg-input border border-border rounded-lg pl-10 pr-4 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                />
-              </div>
-              <ErrorMessage
-                name="name"
-                component="p"
-                className="text-red-500 text-[11px] mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="text-foreground text-[13px] font-medium mb-1.5 block">
-                Work Email
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -152,7 +110,7 @@ export default function AuthStep1({
                 <Field
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Min. 8 characters"
+                  placeholder="Enter your password"
                   className="w-full bg-input border border-border rounded-lg pl-10 pr-10 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
                 />
                 <button
@@ -174,51 +132,25 @@ export default function AuthStep1({
               />
             </div>
 
-            <div className="flex items-center justify-between bg-muted rounded-lg px-4 py-3 mb-1">
-              <div>
-                <span className="text-[13px] font-medium text-foreground">
-                  ¿Tienes una empresa?
-                </span>
-                <p className="text-[11px] text-muted-foreground">
-                  {hasCompany
-                    ? "Se te pedirá información de tu organización"
-                    : "Irás directo a la personalización"}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => onToggleCompany(!hasCompany)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
-                  hasCompany ? "bg-primary" : "bg-border"
-                }`}
-              >
-                <div
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
-                    hasCompany ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            </div>
-
             <button
               type="submit"
-              disabled={isSubmitting || isLoading || !isValid || !dirty}
+              disabled={isSubmitting || isLoading}
               className="w-full bg-primary text-primary-foreground rounded-lg py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50 mt-1"
             >
-              {isLoading ? "Creating account..." : "Continue"}
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </Form>
         )}
       </Formik>
 
       <p className="text-center text-[13px] text-muted-foreground mt-6">
-        Already have an account?{" "}
+        Don't have an account?{" "}
         <button
           type="button"
-          onClick={onSwitchToLogin}
+          onClick={onSwitchToRegister}
           className="text-foreground underline"
         >
-          Sign in
+          Sign up
         </button>
       </p>
     </div>

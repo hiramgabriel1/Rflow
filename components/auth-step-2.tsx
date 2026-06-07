@@ -27,10 +27,10 @@ const teamSizes = [
 const schema = Yup.object({
   organization: Yup.string().required("Organization name is required"),
   website: Yup.string()
-    .required("Website URL is required")
-    .url("Please enter a valid URL"),
-  industry: Yup.string().required("Please select an industry"),
-  teamSize: Yup.string().required("Please select team size"),
+    .url("Please enter a valid URL")
+    .nullable(),
+  industry: Yup.string().nullable(),
+  teamSize: Yup.string().nullable(),
 });
 
 interface Step2Data {
