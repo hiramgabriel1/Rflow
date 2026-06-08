@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 
 export default function Topbar() {
   return (
@@ -26,24 +25,6 @@ export default function Topbar() {
           <Bell className="size-3.5" />
           <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-primary" />
         </button>
-        <div className="flex items-center gap-2.5">
-          <Image
-            src="https://storage.googleapis.com/banani-avatars/avatar/male/25-35/European/0"
-            alt="Alex Morgan"
-            className="rounded-full border border-border"
-            width={32}
-            height={32}
-          />
-          <div className="hidden sm:flex flex-col">
-            <span className="text-foreground text-[13px] font-medium">
-              Alex Morgan
-            </span>
-            <span className="text-muted-foreground text-[11px]">
-              Pro Plan
-            </span>
-          </div>
-          <ChevronDown className="hidden sm:block size-3 text-muted-foreground" />
-        </div>
       </div>
     </div>
   );
