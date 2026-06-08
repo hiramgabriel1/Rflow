@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -58,6 +59,30 @@ export default function Sidebar({ activeItem = "Dashboard" }: SidebarProps) {
           </motion.div>
         ))}
       </nav>
+      <motion.div
+        className="flex flex-col gap-0.5 px-3 pb-5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+      >
+        <div className="flex items-center gap-3 px-3 py-2.5 mt-2 rounded-md border border-border bg-background">
+          <Image
+            src="https://storage.googleapis.com/banani-avatars/avatar/male/25-35/European/0"
+            alt="Alex Morgan"
+            className="rounded-full"
+            width={26}
+            height={26}
+          />
+          <div className="flex flex-col gap-px">
+            <span className="text-foreground text-[12px] font-medium">
+              Alex Morgan
+            </span>
+            <span className="text-muted-foreground text-[11px]">
+              Pro Plan
+            </span>
+          </div>
+        </div>
+      </motion.div>
     </aside>
   );
 }
