@@ -15,6 +15,7 @@ function deleteCookie(name: string) {
 
 interface AuthContextType {
   token: string | null;
+  isReady: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -34,12 +35,14 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("token");
     if (stored) setToken(stored);
+    setIsReady(true);
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
@@ -106,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         token,
+        isReady,
         isAuthenticated: !!token,
         login,
         register,

@@ -71,6 +71,7 @@ export interface UserCompany {
   website: string | null;
   industry: string | null;
   teamSize: number | null;
+  contextCompany: unknown | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -150,6 +151,15 @@ export const api = {
 
   getMe: () =>
     request<UserProfile>("/users/me"),
+
+  analyzeCompany: (url: string) =>
+    request<{ message: string; contextCompany: unknown }>(
+      "/company-context/analyze",
+      {
+        method: "POST",
+        body: JSON.stringify({ url }),
+      }
+    ),
 };
 
 export { ApiError };

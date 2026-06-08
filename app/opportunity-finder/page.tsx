@@ -111,6 +111,12 @@ const competitors = [
 
 export default function OpportunityFinderPage() {
   const [hasSearched, setHasSearched] = useState(false);
+  const [companyUrl, setCompanyUrl] = useState<string | undefined>();
+
+  const handleSearch = (url?: string) => {
+    setCompanyUrl(url);
+    setHasSearched(true);
+  };
 
   return (
     <>
@@ -125,10 +131,21 @@ export default function OpportunityFinderPage() {
         </div>
       </div>
       <div className="flex-1 min-w-0 px-4 py-4 lg:px-8 lg:py-6 overflow-y-auto">
-        <OpportunityInput onSearch={() => setHasSearched(true)} />
+        <OpportunityInput onSearch={handleSearch} />
 
         {hasSearched && (
           <>
+            {companyUrl && (
+              <div className="bg-muted/50 border border-border rounded-xl px-5 py-3 mb-6 flex items-center gap-3">
+                <div className="flex items-center justify-center bg-primary/10 rounded-md size-7">
+                  <Globe className="size-3.5 text-primary" />
+                </div>
+                <div>
+                  <span className="text-[12px] text-muted-foreground">Analyzing</span>
+                  <p className="text-[13px] font-medium text-foreground">{companyUrl}</p>
+                </div>
+              </div>
+            )}
             <OpportunityMetrics />
 
             <div className="mt-8">
