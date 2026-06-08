@@ -20,7 +20,7 @@ const navItems: { label: string; icon: LucideIcon; href: string }[] = [
   { label: "Campaigns", icon: Megaphone, href: "/campaigns" },
   { label: "Opportunity Finder", icon: Search, href: "/opportunity-finder" },
   { label: "University", icon: GraduationCap, href: "/university" },
-  { label: "Settings", icon: Settings, href: "#" },
+  { label: "Settings", icon: Settings, href: "/settings" },
 ];
 
 interface SidebarProps {

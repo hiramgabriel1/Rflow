@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 
+const protectedRoutes = ["/dashboard", "/ai-chat", "/data-hub", "/campaigns", "/opportunity-finder", "/university", "/settings"];
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();

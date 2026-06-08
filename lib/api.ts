@@ -65,6 +65,27 @@ export interface LoginResponse {
   access_token: string;
 }
 
+export interface UserCompany {
+  id: string;
+  organizationName: string;
+  website: string | null;
+  industry: string | null;
+  teamSize: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  haveCompany: boolean;
+  isActive: boolean;
+  userCompany: UserCompany | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -126,6 +147,9 @@ export const api = {
     request<{ message: string }>(`/conversations/${id}`, {
       method: "DELETE",
     }),
+
+  getMe: () =>
+    request<UserProfile>("/users/me"),
 };
 
 export { ApiError };
