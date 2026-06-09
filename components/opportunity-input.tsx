@@ -15,14 +15,7 @@ export default function OpportunityInput({ onSearch }: OpportunityInputProps) {
   }, []);
 
   const loadCompanyUrl = async () => {
-    try {
-      const profile = await api.getMe();
-      if (profile.haveCompany && profile.userCompany?.website) {
-        setCompanyUrl(profile.userCompany.website);
-      }
-    } catch {
-      // ignore
-    }
+    // No website field in new /me response
   };
 
   const handleAnalyzeCompany = async () => {

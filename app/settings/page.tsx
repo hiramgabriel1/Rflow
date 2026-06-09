@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings as SettingsIcon, User, Building2, Mail, Globe, Users, LogOut } from "lucide-react";
+import { Settings as SettingsIcon, User, Building2, Mail, LogOut } from "lucide-react";
 import { api, type UserProfile } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -72,13 +72,13 @@ export default function SettingsPage() {
         <div>
           <h2 className="text-[15px] font-semibold text-foreground mb-4 flex items-center gap-2">
             <User className="size-4 text-muted-foreground" />
-            Personal Information
+            Account Information
           </h2>
           <div className="bg-card border border-border rounded-xl divide-y divide-border">
             <div className="flex items-center justify-between px-5 py-4">
               <div>
-                <span className="text-muted-foreground text-[12px]">Full Name</span>
-                <p className="text-foreground text-[14px] font-medium mt-0.5">{profile.fullName}</p>
+                <span className="text-muted-foreground text-[12px]">Name</span>
+                <p className="text-foreground text-[14px] font-medium mt-0.5">{profile.name}</p>
               </div>
             </div>
             <div className="flex items-center justify-between px-5 py-4">
@@ -92,10 +92,10 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between px-5 py-4">
               <div>
-                <span className="text-muted-foreground text-[12px]">Account Status</span>
+                <span className="text-muted-foreground text-[12px]">Plan</span>
                 <p className="mt-0.5">
-                  <span className={`text-[12px] px-2 py-0.5 rounded-full ${profile.isActive ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
-                    {profile.isActive ? "Active" : "Inactive"}
+                  <span className="text-[12px] px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+                    {profile.plan}
                   </span>
                 </p>
               </div>
@@ -103,64 +103,17 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {profile.haveCompany && profile.userCompany ? (
-          <div>
-            <h2 className="text-[15px] font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Building2 className="size-4 text-muted-foreground" />
-              Organization
-            </h2>
-            <div className="bg-card border border-border rounded-xl divide-y divide-border">
-              <div className="flex items-center justify-between px-5 py-4">
-                <div>
-                  <span className="text-muted-foreground text-[12px]">Organization Name</span>
-                  <p className="text-foreground text-[14px] font-medium mt-0.5">{profile.userCompany.organizationName}</p>
-                </div>
-              </div>
-              {profile.userCompany.website && (
-                <div className="flex items-center justify-between px-5 py-4">
-                  <div>
-                    <span className="text-muted-foreground text-[12px]">Website</span>
-                    <p className="text-foreground text-[14px] font-medium mt-0.5 flex items-center gap-2">
-                      <Globe className="size-3.5 text-muted-foreground" />
-                      {profile.userCompany.website}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {profile.userCompany.industry && (
-                <div className="flex items-center justify-between px-5 py-4">
-                  <div>
-                    <span className="text-muted-foreground text-[12px]">Industry</span>
-                    <p className="text-foreground text-[14px] font-medium mt-0.5">{profile.userCompany.industry}</p>
-                  </div>
-                </div>
-              )}
-              {profile.userCompany.teamSize && (
-                <div className="flex items-center justify-between px-5 py-4">
-                  <div>
-                    <span className="text-muted-foreground text-[12px]">Team Size</span>
-                    <p className="text-foreground text-[14px] font-medium mt-0.5 flex items-center gap-2">
-                      <Users className="size-3.5 text-muted-foreground" />
-                      {profile.userCompany.teamSize} employees
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+        <div>
+          <h2 className="text-[15px] font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Building2 className="size-4 text-muted-foreground" />
+            Organization
+          </h2>
+          <div className="bg-muted/50 border border-border rounded-xl px-5 py-8 text-center">
+            <p className="text-muted-foreground text-[13px]">
+              No organization linked to your account.
+            </p>
           </div>
-        ) : (
-          <div>
-            <h2 className="text-[15px] font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Building2 className="size-4 text-muted-foreground" />
-              Organization
-            </h2>
-            <div className="bg-muted/50 border border-border rounded-xl px-5 py-8 text-center">
-              <p className="text-muted-foreground text-[13px]">
-                No organization linked to your account.
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
 
         <div>
           <button

@@ -12,7 +12,7 @@ async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = typeof window !== "undefined" ? document.cookie.match(/(?:^|;\s*)token=([^;]*)/)?.[1] ?? null : null;
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -63,28 +63,19 @@ export interface LoginInput {
 
 export interface LoginResponse {
   access_token: string;
-}
-
-export interface UserCompany {
-  id: string;
-  organizationName: string;
-  website: string | null;
-  industry: string | null;
-  teamSize: number | null;
-  contextCompany: unknown | null;
-  createdAt: string;
-  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    companyId: string;
+  };
 }
 
 export interface UserProfile {
   id: string;
-  fullName: string;
+  name: string;
   email: string;
-  haveCompany: boolean;
-  isActive: boolean;
-  userCompany: UserCompany | null;
+  plan: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface ChatMessage {
@@ -116,7 +107,7 @@ export const api = {
     }),
 
   login: (input: LoginInput) =>
-    request<LoginResponse>("/users/login", {
+    request<LoginResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(input),
     }),

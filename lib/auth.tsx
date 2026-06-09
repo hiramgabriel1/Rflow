@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("token");
-    if (stored) setToken(stored);
+    const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+    if (match) setToken(match[1]);
     setIsReady(true);
   }, []);
 
@@ -52,7 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       const res = await api.login({ email, password });
-      localStorage.setItem("token", res.access_token);
       setCookie("token", res.access_token, 7);
       setToken(res.access_token);
     } catch (e: unknown) {
@@ -81,7 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           haveCompany,
           ...orgData,
         });
-        localStorage.setItem("token", res.access_token);
         setCookie("token", res.access_token, 7);
         setToken(res.access_token);
       } catch (e: unknown) {
@@ -100,7 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore logout errors
     }
-    localStorage.removeItem("token");
     deleteCookie("token");
     setToken(null);
   }, []);
