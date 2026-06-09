@@ -51,12 +51,12 @@ export default function AuthPage() {
       const orgData = hasCompany
         ? {
             organizationName: formData.organization,
-            website: formData.website || undefined,
-            industry: formData.industry || undefined,
-            teamSize: formData.teamSize ? parseTeamSize(formData.teamSize) : undefined,
+            websiteURL: formData.website || "",
+            industry: formData.industry || "",
+            teamSize: formData.teamSize ? parseTeamSize(formData.teamSize) : 0,
           }
         : undefined;
-      await register(formData.name, formData.email, formData.password, hasCompany, orgData);
+      await register(formData.email, formData.password, hasCompany, orgData);
       setCurrentStep(3);
     } catch {
       // error is set in auth context

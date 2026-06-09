@@ -36,24 +36,34 @@ async function request<T>(
 }
 
 export interface RegisterInput {
-  fullName: string;
   email: string;
   password: string;
-  haveCompany: boolean;
-  organizationName?: string;
-  website?: string;
-  industry?: string;
-  teamSize?: number;
+  company?: {
+    organizationName: string;
+    websiteURL: string;
+    industry: string;
+    teamSize: number;
+  };
 }
 
 export interface RegisterResponse {
-  id: string;
-  fullName: string;
-  email: string;
-  haveCompany: boolean;
-  isActive: boolean;
-  createdAt: string;
   access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    companyId: string;
+  };
+}
+
+export interface RegisterResponse {
+  access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    companyId: string;
+  };
 }
 
 export interface LoginInput {
@@ -63,6 +73,7 @@ export interface LoginInput {
 
 export interface LoginResponse {
   access_token: string;
+  refresh_token: string;
   user: {
     id: string;
     email: string;
@@ -101,7 +112,7 @@ export interface Conversation {
 
 export const api = {
   register: (input: RegisterInput) =>
-    request<RegisterResponse>("/users/register", {
+    request<RegisterResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(input),
     }),
@@ -112,9 +123,10 @@ export const api = {
       body: JSON.stringify(input),
     }),
 
-  logout: () =>
-    request<{ message: string }>("/users/logout", {
+  logout: (refreshToken: string) =>
+    request<{ message: string }>("/auth/logout", {
       method: "POST",
+      body: JSON.stringify({ refresh_token: refreshToken }),
     }),
 
   createConversation: (title: string | undefined, message: string) =>

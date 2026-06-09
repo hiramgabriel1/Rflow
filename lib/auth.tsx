@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/api";
+import { api, type RegisterInput } from "@/lib/api";
 
 function setCookie(name: string, value: string, days: number) {
   const d = new Date();
@@ -19,11 +19,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
-    fullName: string,
     email: string,
     password: string,
     haveCompany: boolean,
-    orgData?: { organizationName?: string; website?: string; industry?: string; teamSize?: number }
+    companyData?: { organizationName?: string; websiteURL?: string; industry?: string; teamSize?: number }
   ) => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
@@ -53,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await api.login({ email, password });
       setCookie("token", res.access_token, 7);
+      setCookie("refresh_token", res.refresh_token, 30);
       setToken(res.access_token);
     } catch (e: unknown) {
       if (e instanceof Error) setError(e.message);
@@ -64,23 +64,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(
     async (
-      fullName: string,
       email: string,
       password: string,
       haveCompany: boolean,
-      orgData?: { organizationName?: string; website?: string; industry?: string; teamSize?: number }
+      companyData?: { organizationName?: string; websiteURL?: string; industry?: string; teamSize?: number }
     ) => {
       setIsLoading(true);
       setError(null);
       try {
         const res = await api.register({
-          fullName,
           email,
           password,
-          haveCompany,
-          ...orgData,
+          ...(haveCompany && companyData
+            ? {
+                company: Object.fromEntries(
+                  Object.entries(companyData).filter(([, v]) => v !== undefined && v !== "")
+                ) as RegisterInput["company"],
+              }
+            : {}),
         });
         setCookie("token", res.access_token, 7);
+        setCookie("refresh_token", res.refresh_token, 30);
         setToken(res.access_token);
       } catch (e: unknown) {
         if (e instanceof Error) setError(e.message);
@@ -93,12 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    const refreshToken = document.cookie.match(/(?:^|;\s*)refresh_token=([^;]*)/)?.[1] ?? null;
     try {
-      await api.logout();
+      if (refreshToken) await api.logout(refreshToken);
     } catch {
       // ignore logout errors
     }
     deleteCookie("token");
+    deleteCookie("refresh_token");
     setToken(null);
   }, []);
 
