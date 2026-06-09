@@ -111,7 +111,7 @@ const competitors = [
 
 export default function OpportunityFinderPage() {
   const [hasSearched, setHasSearched] = useState(false);
-  const [companyUrl, setCompanyUrl] = useState<string | undefined>();
+  const [companyUrl, setCompanyUrl] = useState<string>("");
 
   const handleSearch = (url?: string) => {
     setCompanyUrl(url);
@@ -126,7 +126,7 @@ export default function OpportunityFinderPage() {
             Opportunity Finder
           </h1>
           <p className="text-muted-foreground text-[13px] mt-0.5">
-            Describe your business. AI finds your next customers.
+            Analyze your company website to find opportunities.
           </p>
         </div>
       </div>
