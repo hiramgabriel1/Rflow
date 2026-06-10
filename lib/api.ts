@@ -236,12 +236,37 @@ export const api = {
     request<UserProfile>("/users/me"),
 
   analyzeCompany: (url: string) =>
-    request<{ message: string; contextCompany: unknown }>(
+    request<{ message: string; contextCompany: string }>(
       "/company-context/analyze",
       {
         method: "POST",
         body: JSON.stringify({ url }),
       }
+    ),
+
+  analyzeCompetitor: (url: string) =>
+    request<{ message: string; competitor: { id: string; name: string; url: string; comparison: string; createdAt: string } }>(
+      "/company-context/analyze-competitor",
+      {
+        method: "POST",
+        body: JSON.stringify({ url }),
+      }
+    ),
+
+  listCompetitors: () =>
+    request<Array<{ id: string; name: string; url: string; comparison: string; createdAt: string; updatedAt: string }>>(
+      "/company-context/competitors"
+    ),
+
+  getCompetitor: (id: string) =>
+    request<{ id: string; name: string; url: string; content: string; analysis: string; comparison: string; createdAt: string; updatedAt: string }>(
+      `/company-context/competitors/${id}`
+    ),
+
+  deleteCompetitor: (id: string) =>
+    request<{ deleted: true; competitorId: string }>(
+      `/company-context/competitors/${id}`,
+      { method: "DELETE" }
     ),
 };
 
