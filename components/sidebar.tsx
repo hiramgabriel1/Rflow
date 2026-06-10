@@ -11,11 +11,13 @@ import {
   Search,
   GraduationCap,
   Settings,
+  Building2,
 } from "lucide-react";
 
 const navItems: { label: string; icon: LucideIcon; href: string }[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "AI Chat", icon: Bot, href: "/ai-chat" },
+  { label: "Company Analysis", icon: Building2, href: "/company-analysis" },
   { label: "Data Hub", icon: Database, href: "/data-hub" },
   { label: "Campaigns", icon: Megaphone, href: "/campaigns" },
   { label: "Opportunity Finder", icon: Search, href: "/opportunity-finder" },

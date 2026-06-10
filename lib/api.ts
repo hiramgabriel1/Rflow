@@ -147,9 +147,11 @@ export interface LoginResponse {
 
 export interface UserProfile {
   id: string;
-  name: string;
-  email: string;
-  plan: string;
+  organizationName: string;
+  websiteURL: string;
+  industry: string;
+  teamSize: number;
+  contextCompany: string;
   createdAt: string;
 }
 
