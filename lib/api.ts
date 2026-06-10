@@ -56,16 +56,6 @@ export interface RegisterResponse {
   };
 }
 
-export interface RegisterResponse {
-  access_token: string;
-  refresh_token: string;
-  user: {
-    id: string;
-    email: string;
-    companyId: string;
-  };
-}
-
 export interface LoginInput {
   email: string;
   password: string;
@@ -94,20 +84,10 @@ export interface ChatMessage {
   content: string;
 }
 
-export interface ConversationSummary {
-  id: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface Conversation {
   id: string;
-  title: string;
   messages: ChatMessage[];
-  userId: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 export const api = {
@@ -129,26 +109,22 @@ export const api = {
       body: JSON.stringify({ refresh_token: refreshToken }),
     }),
 
-  createConversation: (title: string | undefined, message: string) =>
-    request<Conversation>("/conversations", {
+  initConversation: () =>
+    request<Conversation>("/conversations/init", {
       method: "POST",
-      body: JSON.stringify({ title, message }),
     }),
 
   listConversations: () =>
-    request<ConversationSummary[]>("/conversations"),
+    request<Conversation>("/conversations"),
 
-  getConversation: (id: string) =>
-    request<Conversation>(`/conversations/${id}`),
-
-  sendMessage: (conversationId: string, message: string) =>
-    request<Conversation>(`/conversations/${conversationId}/messages`, {
+  sendMessage: (content: string) =>
+    request<Conversation>("/conversations/message", {
       method: "POST",
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ content }),
     }),
 
-  deleteConversation: (id: string) =>
-    request<{ message: string }>(`/conversations/${id}`, {
+  clearConversations: () =>
+    request<Conversation>("/conversations", {
       method: "DELETE",
     }),
 

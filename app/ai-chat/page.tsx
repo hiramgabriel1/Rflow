@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Clock, Plus, Trash2 } from "lucide-react";
-import { api, type ChatMessage, type Conversation, type ConversationSummary } from "@/lib/api";
+import { Sparkles, Plus, Trash2 } from "lucide-react";
+import { api, type ChatMessage, type Conversation } from "@/lib/api";
 import ChatMessageComponent from "@/components/chat-message";
-import ChatHistory from "@/components/chat-history";
 
 function ChatInput({
   onSend,
@@ -72,63 +71,41 @@ function ChatInput({
 
 export default function AIChatPage() {
   const router = useRouter();
-  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadConversations();
+    loadConversation();
   }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const loadConversations = async () => {
+  const loadConversation = async () => {
+    setIsInitialLoading(true);
     try {
-      const list = await api.listConversations();
-      setConversations(list);
+      const conv = await api.listConversations();
+      setMessages(conv.messages ?? []);
     } catch (e: unknown) {
       if (e instanceof Error && e.message.includes("Token")) {
         router.push("/auth");
       }
-    }
-  };
-
-  const selectConversation = useCallback(async (id: string) => {
-    setIsInitialLoading(true);
-    try {
-      const conv = await api.getConversation(id);
-      setCurrentConversation(conv);
-      setMessages(conv.messages);
-    } catch {
-      // ignore
     } finally {
       setIsInitialLoading(false);
     }
-  }, []);
-
-  const handleNewChat = () => {
-    setCurrentConversation(null);
-    setMessages([]);
   };
 
-  const handleDeleteConversation = useCallback(async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClearChat = useCallback(async () => {
     try {
-      await api.deleteConversation(id);
-      if (currentConversation?.id === id) {
-        setCurrentConversation(null);
-        setMessages([]);
-      }
-      setConversations((prev) => prev.filter((c) => c.id !== id));
+      await api.clearConversations();
+      setMessages([]);
     } catch {
       // ignore
     }
-  }, [currentConversation]);
+  }, []);
 
   const handleSend = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { role: "user", content };
@@ -136,29 +113,14 @@ export default function AIChatPage() {
     setIsLoading(true);
 
     try {
-      if (currentConversation) {
-        const updated = await api.sendMessage(currentConversation.id, content);
-        setCurrentConversation(updated);
-        setMessages(updated.messages);
-      } else {
-        const newConv = await api.createConversation(undefined, content);
-        setCurrentConversation(newConv);
-        setMessages(newConv.messages);
-        await loadConversations();
-      }
+      const result = await api.sendMessage(content);
+      setMessages(result.messages ?? []);
     } catch {
       // ignore
     } finally {
       setIsLoading(false);
     }
-  }, [currentConversation]);
-
-  const capabilities = [
-    { label: "Prospect discovery", icon: "users" },
-    { label: "Competitor intelligence", icon: "building" },
-    { label: "Outreach generation", icon: "send" },
-    { label: "Market research", icon: "search" },
-  ];
+  }, []);
 
   return (
     <>
@@ -169,7 +131,7 @@ export default function AIChatPage() {
           </div>
           <div>
             <span className="text-foreground font-headings font-semibold text-[14px]">
-              {currentConversation?.title || "AI Chat"}
+              AI Chat
             </span>
             <div className="flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-success" />
@@ -180,13 +142,15 @@ export default function AIChatPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleNewChat}
-            className="flex items-center gap-1.5 bg-background border border-border rounded-md px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Plus className="size-3" />
-            New Chat
-          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={handleClearChat}
+              className="flex items-center gap-1.5 bg-background border border-border rounded-md px-3 py-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Trash2 className="size-3" />
+              Clear Chat
+            </button>
+          )}
         </div>
       </div>
       <div className="flex flex-1 min-w-0">
@@ -228,15 +192,6 @@ export default function AIChatPage() {
               <ChatInput onSend={handleSend} isLoading={isLoading} />
             </div>
           </div>
-        </div>
-        <div className="hidden xl:block">
-          <ChatHistory
-            conversations={conversations.map((c) => ({ id: c.id, title: c.title, time: new Date(c.createdAt).toLocaleDateString() }))}
-            capabilities={capabilities}
-            onSelectConversation={selectConversation}
-            onDeleteConversation={handleDeleteConversation}
-            activeId={currentConversation?.id}
-          />
         </div>
       </div>
     </>
