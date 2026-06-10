@@ -17,7 +17,6 @@ import {
   Share2,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import OpportunityInput from "@/components/opportunity-input";
 import SocialProfileInput from "@/components/social-profile-input";
 import CompetitorInput from "@/components/competitor-input";
 import CompetitorList from "@/components/competitor-list";
@@ -25,7 +24,7 @@ import CompetitorDetail from "@/components/competitor-detail";
 import OpportunityResult from "@/components/opportunity-result";
 import OpportunityMetrics from "@/components/opportunity-metrics";
 
-type AnalysisMode = "company" | "social" | "competitors";
+type AnalysisMode = "competitors" | "social";
 
 const opportunities = [
   {
@@ -95,18 +94,11 @@ const opportunities = [
 ];
 
 export default function OpportunityFinderPage() {
-  const [mode, setMode] = useState<AnalysisMode>("company");
+  const [mode, setMode] = useState<AnalysisMode>("social");
   const [hasSearched, setHasSearched] = useState(false);
   const [searchTarget, setSearchTarget] = useState<{ type: string; value: string } | null>(null);
   const [selectedCompetitorId, setSelectedCompetitorId] = useState<string | null>(null);
   const [competitorLoading, setCompetitorLoading] = useState(false);
-
-  const handleCompanySearch = (url?: string) => {
-    if (url) {
-      setSearchTarget({ type: "company", value: url });
-      setHasSearched(true);
-    }
-  };
 
   const handleSocialAnalyze = (platform: "instagram" | "facebook", profileUrl: string) => {
     setSearchTarget({ type: platform, value: profileUrl });
@@ -130,8 +122,6 @@ export default function OpportunityFinderPage() {
   const getTargetIcon = () => {
     if (!searchTarget) return null;
     switch (searchTarget.type) {
-      case "company":
-        return <Globe className="size-3.5 text-primary" />;
       case "instagram":
         return <Camera className="size-3.5 text-primary" />;
       case "facebook":
@@ -158,17 +148,6 @@ export default function OpportunityFinderPage() {
       <div className="flex-1 min-w-0 px-4 py-4 lg:px-8 lg:py-6 overflow-y-auto">
         <div className="flex items-center gap-2 mb-6">
           <button
-            onClick={() => { setMode("company"); setHasSearched(false); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-              mode === "company"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Building2 className="size-4" />
-            Company
-          </button>
-          <button
             onClick={() => { setMode("competitors"); setHasSearched(false); setSelectedCompetitorId(null); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
               mode === "competitors"
@@ -192,7 +171,6 @@ export default function OpportunityFinderPage() {
           </button>
         </div>
 
-        {mode === "company" && <OpportunityInput onSearch={handleCompanySearch} />}
         {mode === "competitors" && (
           <div className="flex flex-col gap-6">
             <CompetitorInput onAnalyze={handleCompetitorAnalyze} loading={competitorLoading} />
@@ -222,8 +200,8 @@ export default function OpportunityFinderPage() {
                 {getTargetIcon()}
               </div>
               <div>
-                <span className="text-[12px] text-muted-foreground">
-                  Analyzing {searchTarget.type === "company" ? "company" : searchTarget.type}
+                <span className="text-[12px] text-muted-foreground capitalize">
+                  Analyzing {searchTarget.type}
                 </span>
                 <p className="text-[13px] font-medium text-foreground">{searchTarget.value}</p>
               </div>
@@ -270,7 +248,7 @@ export default function OpportunityFinderPage() {
                       AI Recommendation
                     </h3>
                     <p className="text-muted-foreground text-[13px] leading-[1.6]">
-                      Based on your {searchTarget.type === "company" ? "business" : "social profile"} analysis, the{" "}
+                      Based on your {searchTarget.type === "competitor" ? "competitor" : "social profile"} analysis, the{" "}
                       <span className="text-foreground font-medium">
                         AI SDR Tools market
                       </span>{" "}
