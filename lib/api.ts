@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 class ApiError extends Error {
   status: number;
@@ -8,14 +8,57 @@ class ApiError extends Error {
   }
 }
 
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
+function getCookie(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match?.[1] ?? null;
+}
+
+function setTokenCookie(token: string) {
+  if (typeof window === "undefined") return;
+  document.cookie = `token=${token}; path=/; max-age=900`;
+}
+
+async function refreshToken(): Promise<void> {
+  const refresh_token = getCookie("refresh_token");
+  if (!refresh_token) {
+    if (typeof window !== "undefined") window.location.href = "/auth";
+    throw new Error("No refresh token");
+  }
+
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ refresh_token }),
+  });
+
+  if (!res.ok) {
+    if (typeof window !== "undefined") window.location.href = "/auth";
+    throw new Error("Refresh failed");
+  }
+
+  const data = await res.json();
+  setTokenCookie(data.access_token);
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = typeof window !== "undefined" ? document.cookie.match(/(?:^|;\s*)token=([^;]*)/)?.[1] ?? null : null;
+  const token = getCookie("token");
+
+  if (!token && typeof window !== "undefined" && !path.startsWith("/auth/")) {
+    window.location.href = "/auth";
+    throw new Error("No token");
+  }
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -23,8 +66,39 @@ async function request<T>(
     },
   });
 
-  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = refreshToken().finally(() => {
+        isRefreshing = false;
+        refreshPromise = null;
+      });
+    }
+    await refreshPromise;
 
+    const newToken = getCookie("token");
+    const retryRes = await fetch(`${API_URL}${path}`, {
+      ...options,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(newToken ? { Authorization: `Bearer ${newToken}` } : {}),
+        ...options.headers,
+      },
+    });
+
+    const retryData = await retryRes.json().catch(() => ({}));
+    if (!retryRes.ok) {
+      if (typeof window !== "undefined") window.location.href = "/auth";
+      throw new ApiError(
+        retryRes.status,
+        (retryData as { message?: string }).message || "Something went wrong"
+      );
+    }
+    return retryData as T;
+  }
+
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new ApiError(
       res.status,
@@ -86,8 +160,25 @@ export interface ChatMessage {
 
 export interface Conversation {
   id: string;
+  title: string;
   messages: ChatMessage[];
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationListResponse {
+  data: ConversationSummary[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export const api = {
@@ -109,22 +200,33 @@ export const api = {
       body: JSON.stringify({ refresh_token: refreshToken }),
     }),
 
-  initConversation: () =>
-    request<Conversation>("/conversations/init", {
+  refreshToken: () => refreshToken(),
+
+  createConversation: (title?: string) =>
+    request<Conversation>("/conversations", {
       method: "POST",
+      body: JSON.stringify({ title }),
     }),
 
-  listConversations: () =>
-    request<Conversation>("/conversations"),
+  listConversations: (page = 1, limit = 15) =>
+    request<ConversationListResponse>(`/conversations?page=${page}&limit=${limit}`),
 
-  sendMessage: (content: string) =>
-    request<Conversation>("/conversations/message", {
+  getConversation: (id: string) =>
+    request<Conversation>(`/conversations/${id}`),
+
+  sendMessage: (id: string, content: string) =>
+    request<Conversation>(`/conversations/${id}/message`, {
       method: "POST",
       body: JSON.stringify({ content }),
     }),
 
-  clearConversations: () =>
-    request<Conversation>("/conversations", {
+  clearConversation: (id: string) =>
+    request<Conversation>(`/conversations/${id}/clear`, {
+      method: "POST",
+    }),
+
+  deleteConversation: (id: string) =>
+    request<{ deleted: true; conversationId: string }>(`/conversations/${id}`, {
       method: "DELETE",
     }),
 

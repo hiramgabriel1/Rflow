@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Plus, Trash2 } from "lucide-react";
-import { api, type ChatMessage, type Conversation } from "@/lib/api";
+import { Sparkles, Trash2 } from "lucide-react";
+import { api, type ChatMessage } from "@/lib/api";
 import ChatMessageComponent from "@/components/chat-message";
+import ChatHistory from "@/components/chat-history";
 
 function ChatInput({
   onSend,
@@ -74,38 +75,101 @@ export default function AIChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
+  const [conversations, setConversations] = useState<{ id: string; title: string; time: string }[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | undefined>();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const loadConversationHistory = async (page = 1) => {
+    try {
+      const response = await api.listConversations(page, 15);
+      setConversations(
+        response.data.map((conv) => ({
+          id: conv.id,
+          title: conv.title,
+          time: formatDate(conv.updatedAt),
+        }))
+      );
+      setTotalPages(response.totalPages);
+      setCurrentPage(response.page);
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message.includes("Token")) {
+        router.push("/auth");
+      }
+    }
+  };
+
   useEffect(() => {
-    loadConversation();
+    let mounted = true;
+
+    const loadInitialData = async () => {
+      setIsInitialLoading(true);
+      try {
+        const historyResponse = await api.listConversations(1, 15);
+
+        if (mounted) {
+          setConversations(
+            historyResponse.data.map((conv) => ({
+              id: conv.id,
+              title: conv.title,
+              time: formatDate(conv.updatedAt),
+            }))
+          );
+          if (historyResponse.data.length > 0) {
+            const convResponse = await api.getConversation(historyResponse.data[0].id);
+            setMessages(convResponse.messages ?? []);
+            setActiveConversationId(historyResponse.data[0].id);
+          }
+        }
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message.includes("Token") && mounted) {
+          router.push("/auth");
+        }
+      } finally {
+        if (mounted) {
+          setIsInitialLoading(false);
+        }
+      }
+    };
+
+    loadInitialData();
+
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const loadConversation = async () => {
-    setIsInitialLoading(true);
-    try {
-      const conv = await api.listConversations();
-      setMessages(conv.messages ?? []);
-    } catch (e: unknown) {
-      if (e instanceof Error && e.message.includes("Token")) {
-        router.push("/auth");
-      }
-    } finally {
-      setIsInitialLoading(false);
-    }
-  };
-
   const handleClearChat = useCallback(async () => {
+    if (!activeConversationId) return;
     try {
-      await api.clearConversations();
+      await api.clearConversation(activeConversationId);
       setMessages([]);
+      loadConversationHistory();
     } catch {
       // ignore
     }
-  }, []);
+  }, [activeConversationId]);
 
   const handleSend = useCallback(async (content: string) => {
     const userMsg: ChatMessage = { role: "user", content };
@@ -113,14 +177,46 @@ export default function AIChatPage() {
     setIsLoading(true);
 
     try {
-      const result = await api.sendMessage(content);
+      let conversationId = activeConversationId;
+      if (!conversationId) {
+        const newConv = await api.createConversation();
+        conversationId = newConv.id;
+        setActiveConversationId(conversationId);
+        loadConversationHistory();
+      }
+      const result = await api.sendMessage(conversationId, content);
       setMessages(result.messages ?? []);
+      loadConversationHistory();
     } catch {
       // ignore
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeConversationId, loadConversationHistory]);
+
+  const handleSelectConversation = async (id: string) => {
+    setActiveConversationId(id);
+    try {
+      const conv = await api.getConversation(id);
+      setMessages(conv.messages ?? []);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDeleteConversation = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.deleteConversation(id);
+      if (activeConversationId === id) {
+        setActiveConversationId(undefined);
+        setMessages([]);
+      }
+      loadConversationHistory();
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <>
@@ -193,6 +289,18 @@ export default function AIChatPage() {
             </div>
           </div>
         </div>
+        <ChatHistory
+          conversations={conversations}
+          capabilities={[
+            { label: "Find prospects", icon: "users" },
+            { label: "Analyze companies", icon: "building" },
+            { label: "Generate outreach", icon: "send" },
+            { label: "Research markets", icon: "search" },
+          ]}
+          onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
+          activeId={activeConversationId}
+        />
       </div>
     </>
   );
