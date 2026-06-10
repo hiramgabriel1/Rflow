@@ -183,6 +183,31 @@ export interface ConversationListResponse {
   totalPages: number;
 }
 
+export interface CompetitorSummary {
+  id: string;
+  name: string;
+  url: string;
+  comparison: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompetitorDetail {
+  id: string;
+  name: string;
+  url: string;
+  content: string;
+  analysis: string;
+  comparison: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompetitorAnalysisResponse {
+  message: string;
+  competitor: CompetitorSummary;
+}
+
 export const api = {
   register: (input: RegisterInput) =>
     request<RegisterResponse>("/auth/register", {
@@ -236,7 +261,7 @@ export const api = {
     request<UserProfile>("/users/me"),
 
   analyzeCompany: (url: string) =>
-    request<{ message: string; contextCompany: string }>(
+    request<{ message: string; contextCompany: unknown }>(
       "/company-context/analyze",
       {
         method: "POST",
@@ -245,7 +270,7 @@ export const api = {
     ),
 
   analyzeCompetitor: (url: string) =>
-    request<{ message: string; competitor: { id: string; name: string; url: string; comparison: string; createdAt: string } }>(
+    request<CompetitorAnalysisResponse>(
       "/company-context/analyze-competitor",
       {
         method: "POST",
@@ -254,17 +279,13 @@ export const api = {
     ),
 
   listCompetitors: () =>
-    request<Array<{ id: string; name: string; url: string; comparison: string; createdAt: string; updatedAt: string }>>(
-      "/company-context/competitors"
-    ),
+    request<CompetitorSummary[]>("/company-context/competitors"),
 
   getCompetitor: (id: string) =>
-    request<{ id: string; name: string; url: string; content: string; analysis: string; comparison: string; createdAt: string; updatedAt: string }>(
-      `/company-context/competitors/${id}`
-    ),
+    request<CompetitorDetail>(`/company-context/competitors/${id}`),
 
   deleteCompetitor: (id: string) =>
-    request<{ deleted: true; competitorId: string }>(
+    request<{ deleted: boolean; competitorId: string }>(
       `/company-context/competitors/${id}`,
       { method: "DELETE" }
     ),

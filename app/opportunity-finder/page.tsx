@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { mutate } from "swr";
 import {
   Sparkles,
   Target,
   Building2,
-  ArrowRight,
   Zap,
   BarChart3,
   Globe,
@@ -16,12 +16,16 @@ import {
   Camera,
   Share2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 import OpportunityInput from "@/components/opportunity-input";
 import SocialProfileInput from "@/components/social-profile-input";
+import CompetitorInput from "@/components/competitor-input";
+import CompetitorList from "@/components/competitor-list";
+import CompetitorDetail from "@/components/competitor-detail";
 import OpportunityResult from "@/components/opportunity-result";
 import OpportunityMetrics from "@/components/opportunity-metrics";
 
-type AnalysisMode = "company" | "social";
+type AnalysisMode = "company" | "social" | "competitors";
 
 const opportunities = [
   {
@@ -90,34 +94,12 @@ const opportunities = [
   },
 ];
 
-const competitors = [
-  {
-    name: "Apollo.io",
-    marketShare: "24%",
-    strength: "Large database, affordable pricing",
-    weakness: "Data quality issues, limited AI features",
-    opportunity: "Position as premium AI-first alternative",
-  },
-  {
-    name: "ZoomInfo",
-    marketShare: "31%",
-    strength: "Enterprise-grade data, strong brand",
-    weakness: "Expensive, complex onboarding",
-    opportunity: "Target mid-market with simpler, faster solution",
-  },
-  {
-    name: "HubSpot Sales Hub",
-    marketShare: "18%",
-    strength: "All-in-one platform, free tier",
-    weakness: "Limited prospecting depth, generic AI",
-    opportunity: "Deep vertical intelligence vs broad CRM features",
-  },
-];
-
 export default function OpportunityFinderPage() {
   const [mode, setMode] = useState<AnalysisMode>("company");
   const [hasSearched, setHasSearched] = useState(false);
   const [searchTarget, setSearchTarget] = useState<{ type: string; value: string } | null>(null);
+  const [selectedCompetitorId, setSelectedCompetitorId] = useState<string | null>(null);
+  const [competitorLoading, setCompetitorLoading] = useState(false);
 
   const handleCompanySearch = (url?: string) => {
     if (url) {
@@ -131,6 +113,20 @@ export default function OpportunityFinderPage() {
     setHasSearched(true);
   };
 
+  const handleCompetitorAnalyze = async (url: string) => {
+    setCompetitorLoading(true);
+    try {
+      await api.analyzeCompetitor(url);
+      mutate("competitors");
+      setSearchTarget({ type: "competitor", value: url });
+      setHasSearched(true);
+    } catch {
+      // ignore
+    } finally {
+      setCompetitorLoading(false);
+    }
+  };
+
   const getTargetIcon = () => {
     if (!searchTarget) return null;
     switch (searchTarget.type) {
@@ -140,6 +136,8 @@ export default function OpportunityFinderPage() {
         return <Camera className="size-3.5 text-primary" />;
       case "facebook":
         return <Share2 className="size-3.5 text-primary" />;
+      case "competitor":
+        return <Building2 className="size-3.5 text-primary" />;
       default:
         return null;
     }
@@ -153,7 +151,7 @@ export default function OpportunityFinderPage() {
             Opportunity Finder
           </h1>
           <p className="text-muted-foreground text-[13px] mt-0.5">
-            Analyze companies or social profiles to find opportunities.
+            Analyze companies, competitors, or social profiles to find opportunities.
           </p>
         </div>
       </div>
@@ -168,7 +166,18 @@ export default function OpportunityFinderPage() {
             }`}
           >
             <Building2 className="size-4" />
-            Company Analysis
+            Company
+          </button>
+          <button
+            onClick={() => { setMode("competitors"); setHasSearched(false); setSelectedCompetitorId(null); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+              mode === "competitors"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Globe className="size-4" />
+            Competitors
           </button>
           <button
             onClick={() => { setMode("social"); setHasSearched(false); }}
@@ -179,17 +188,34 @@ export default function OpportunityFinderPage() {
             }`}
           >
             <Camera className="size-4" />
-            Social Profile
+            Social
           </button>
         </div>
 
-        {mode === "company" ? (
-          <OpportunityInput onSearch={handleCompanySearch} />
-        ) : (
-          <SocialProfileInput onAnalyze={handleSocialAnalyze} />
+        {mode === "company" && <OpportunityInput onSearch={handleCompanySearch} />}
+        {mode === "competitors" && (
+          <div className="flex flex-col gap-6">
+            <CompetitorInput onAnalyze={handleCompetitorAnalyze} loading={competitorLoading} />
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-5 py-3 border-b border-border">
+                <span className="text-[13px] font-medium text-foreground">
+                  Analyzed Competitors
+                </span>
+              </div>
+              {selectedCompetitorId ? (
+                <CompetitorDetail
+                  id={selectedCompetitorId}
+                  onBack={() => setSelectedCompetitorId(null)}
+                />
+              ) : (
+                <CompetitorList onSelectCompetitor={setSelectedCompetitorId} />
+              )}
+            </div>
+          </div>
         )}
+        {mode === "social" && <SocialProfileInput onAnalyze={handleSocialAnalyze} />}
 
-        {hasSearched && searchTarget && (
+        {hasSearched && searchTarget && mode !== "competitors" && (
           <>
             <div className="bg-muted/50 border border-border rounded-xl px-5 py-3 mb-6 flex items-center gap-3">
               <div className="flex items-center justify-center bg-primary/10 rounded-md size-7">
@@ -230,82 +256,6 @@ export default function OpportunityFinderPage() {
                 {opportunities.map((opp) => (
                   <OpportunityResult key={opp.id} {...opp} />
                 ))}
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-headings font-semibold text-foreground text-[16px]">
-                  Competitive Landscape
-                </h2>
-                <button className="flex items-center gap-1 text-primary text-[13px] font-medium">
-                  Full analysis
-                  <ArrowRight className="size-3.5" />
-                </button>
-              </div>
-              <div className="bg-card border border-border rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left text-[12px] font-medium text-muted-foreground px-5 py-3">
-                        COMPETITOR
-                      </th>
-                      <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">
-                        MARKET SHARE
-                      </th>
-                      <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">
-                        STRENGTH
-                      </th>
-                      <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">
-                        WEAKNESS
-                      </th>
-                      <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">
-                        YOUR OPPORTUNITY
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {competitors.map((comp) => (
-                      <tr
-                        key={comp.name}
-                        className="border-b border-border last:border-b-0 hover:bg-muted/30"
-                      >
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center bg-muted rounded-md size-8">
-                              <Building2 className="size-3.5 text-muted-foreground" />
-                            </div>
-                            <span className="text-foreground text-[13px] font-medium">
-                              {comp.name}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary rounded-full"
-                                style={{ width: comp.marketShare }}
-                              />
-                            </div>
-                            <span className="text-[13px] text-foreground font-medium">
-                              {comp.marketShare}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 text-[12px] text-foreground max-w-[200px]">
-                          {comp.strength}
-                        </td>
-                        <td className="px-4 py-3.5 text-[12px] text-muted-foreground max-w-[200px]">
-                          {comp.weakness}
-                        </td>
-                        <td className="px-4 py-3.5 text-[12px] text-primary font-medium max-w-[200px]">
-                          {comp.opportunity}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
             </div>
 
