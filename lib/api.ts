@@ -208,6 +208,29 @@ export interface CompetitorAnalysisResponse {
   competitor: CompetitorSummary;
 }
 
+export interface SocialLead {
+  username: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  profileUrl: string;
+  followersCount: number;
+}
+
+export interface SocialScrapeInput {
+  username: string;
+  network: "instagram" | "facebook";
+  limit?: number;
+}
+
+export interface SocialScrapeResponse {
+  message: string;
+  profile: unknown;
+  leads: SocialLead[];
+  total: number;
+  withContactInfo: number;
+}
+
 export const api = {
   register: (input: RegisterInput) =>
     request<RegisterResponse>("/auth/register", {
@@ -287,6 +310,30 @@ export const api = {
   deleteCompetitor: (id: string) =>
     request<{ deleted: boolean; competitorId: string }>(
       `/company-context/competitors/${id}`,
+      { method: "DELETE" }
+    ),
+
+  scrapeSocial: (input: SocialScrapeInput) =>
+    request<SocialScrapeResponse>("/social-scraping/scrape", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+
+  listSocialLeads: (network: string, sourceAccount: string) =>
+    request<SocialLead[]>(`/social-scraping/leads?network=${network}&sourceAccount=${sourceAccount}`),
+
+  getSocialLead: (id: string) =>
+    request<SocialLead>(`/social-scraping/leads/${id}`),
+
+  deleteSocialLead: (id: string) =>
+    request<{ deleted: boolean; leadId: string }>(
+      `/social-scraping/leads/${id}`,
+      { method: "DELETE" }
+    ),
+
+  deleteSocialLeads: (network: string, sourceAccount: string) =>
+    request<{ deleted: boolean }>(
+      `/social-scraping/leads?network=${network}&sourceAccount=${sourceAccount}`,
       { method: "DELETE" }
     ),
 };

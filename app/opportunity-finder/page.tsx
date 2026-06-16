@@ -100,11 +100,6 @@ export default function OpportunityFinderPage() {
   const [selectedCompetitorId, setSelectedCompetitorId] = useState<string | null>(null);
   const [competitorLoading, setCompetitorLoading] = useState(false);
 
-  const handleSocialAnalyze = (platform: "instagram" | "facebook", profileUrl: string) => {
-    setSearchTarget({ type: platform, value: profileUrl });
-    setHasSearched(true);
-  };
-
   const handleCompetitorAnalyze = async (url: string) => {
     setCompetitorLoading(true);
     try {
@@ -191,9 +186,9 @@ export default function OpportunityFinderPage() {
             </div>
           </div>
         )}
-        {mode === "social" && <SocialProfileInput onAnalyze={handleSocialAnalyze} />}
+        {mode === "social" && <SocialProfileInput />}
 
-        {hasSearched && searchTarget && mode !== "competitors" && (
+        {hasSearched && searchTarget && mode === "competitors" && (
           <>
             <div className="bg-muted/50 border border-border rounded-xl px-5 py-3 mb-6 flex items-center gap-3">
               <div className="flex items-center justify-center bg-primary/10 rounded-md size-7">
